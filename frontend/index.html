@@ -37,7 +37,66 @@
                     <li><a href="#faq">FAQ</a></li>
                 </ul>
                 <div class="nav-cta">
-                    <a href="login.html" class="btn-secondary">Sign In</a>
+                    <div class="dropdown">
+                        <button class="btn-secondary dropdown-toggle" id="authDropdown">
+                            Sign In
+                            <svg class="dropdown-icon" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu" id="authDropdownMenu">
+                            <div class="dropdown-section">
+                                <div class="dropdown-header">Create Account</div>
+                                <a href="admin-signup.html" class="dropdown-item">
+                                    <svg class="dropdown-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div>
+                                        <div class="dropdown-item-title">Sign up as Admin</div>
+                                        <div class="dropdown-item-desc">Manage platform & users</div>
+                                    </div>
+                                </a>
+                                <a href="login.html" class="dropdown-item">
+                                    <svg class="dropdown-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div>
+                                        <div class="dropdown-item-title">Sign up as Agent</div>
+                                        <div class="dropdown-item-desc">List & manage properties</div>
+                                    </div>
+                                </a>
+                                <a href="login.html" class="dropdown-item">
+                                    <svg class="dropdown-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <div>
+                                        <div class="dropdown-item-title">Sign up as Buyer</div>
+                                        <div class="dropdown-item-desc">Browse & buy properties</div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-section">
+                                <a href="login.html" class="dropdown-item highlight">
+                                    <svg class="dropdown-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="10 17 15 12 10 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div>
+                                        <div class="dropdown-item-title">Already have an account?</div>
+                                        <div class="dropdown-item-desc">Login to your account</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>

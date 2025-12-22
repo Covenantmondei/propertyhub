@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropertyHub - Admin Registration</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/alerts.css">
+</head>
+<body class="login-page">
+    <main class="login-main">
+        <div class="login-background"></div>
+        <div class="login-overlay"></div>
+        
+        <div class="login-content">
+            <div class="auth-card" id="auth-card" style="height: 920px;">
+                <div class="glass-card">
+                    <div class="glass-content" id="auth-content">
+                        <!-- Admin Signup Step -->
+                        <div class="auth-step active" id="admin-signup-step">
+                            <div class="auth-header">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 2rem; height: 2rem; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none;">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                        <path d="M2 17l10 5 10-5"/>
+                                        <path d="M2 12l10 5 10-5"/>
+                                    </svg>
+                                    <h1 class="auth-title" style="margin-bottom: 0;">Admin Registration</h1>
+                                </div>
+                                <p class="auth-subtitle">Create your administrator account</p>
+                            </div>
+                            
+                            <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 0.75rem; align-items: start;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem; stroke: rgba(255, 255, 255, 0.9); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; flex-shrink: 0; margin-top: 0.125rem;">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    <div>
+                                        <p style="color: rgba(255, 255, 255, 0.95); font-size: 0.875rem; font-weight: 500; margin: 0 0 0.25rem 0;">Administrator Account</p>
+                                        <p style="color: rgba(255, 255, 255, 0.75); font-size: 0.75rem; margin: 0;">This registration is for administrators only. You will have full access to manage users, properties, and system settings.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <form id="admin-signup-form" class="auth-form">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label class="form-label glass-label">First Name</label>
+                                        <div class="input-with-icon">
+                                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            <input type="text" class="form-input glass-input" id="admin-first-name" placeholder="First name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label glass-label">Last Name</label>
+                                        <div class="input-with-icon">
+                                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            <input type="text" class="form-input glass-input" id="admin-last-name" placeholder="Last name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Admin Username</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                            <path d="M2 17l10 5 10-5"/>
+                                            <path d="M2 12l10 5 10-5"/>
+                                        </svg>
+                                        <input type="text" class="form-input glass-input" id="admin-username" placeholder="Choose an admin username" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Email Address</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                        <input type="email" class="form-input glass-input" id="admin-email" placeholder="Enter your email address" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Password</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <input type="password" class="form-input glass-input" id="admin-password" placeholder="Create a strong password" required>
+                                        <button type="button" class="toggle-password" data-target="admin-password">
+                                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg class="icon-eye-off hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="password-strength" id="password-strength"></div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Confirm Password</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <input type="password" class="form-input glass-input" id="admin-confirm-password" placeholder="Confirm your password" required>
+                                        <button type="button" class="toggle-password" data-target="admin-confirm-password">
+                                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg class="icon-eye-off hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="password-match-message"></div>
+                                
+                                <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 1rem; margin-top: 0.5rem;">
+                                    <label style="display: flex; align-items: start; gap: 0.75rem; cursor: pointer;">
+                                        <input type="checkbox" id="admin-terms" required style="margin-top: 0.25rem; cursor: pointer;">
+                                        <span style="color: rgba(255, 255, 255, 0.8); font-size: 0.75rem; line-height: 1.4;">
+                                            I understand that as an administrator, I will have full access to manage all aspects of the system including users, properties, and sensitive data. I agree to use this access responsibly and in accordance with all applicable policies.
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-full glass-button" style="margin-top: 0.5rem;">
+                                    Create Admin Account
+                                </button>
+                            </form>
+                            
+                            <div class="auth-footer">
+                                <button type="button" class="link-button" onclick="window.location.href='login.html'">
+                                    Already have an account? Sign in
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Success Step -->
+                        <div class="auth-step" id="success-step">
+                            <div class="success-content">
+                                <div class="success-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <h1 class="auth-title" id="success-title">Admin Account Created!</h1>
+                                <p class="auth-subtitle" id="success-message">Please check your email to verify your account before logging in.</p>
+                                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 0.75rem; padding: 1rem; margin-top: 1rem;">
+                                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; margin: 0;">
+                                        Your administrator account has been created successfully. Once you verify your email, you'll have full access to the admin dashboard.
+                                    </p>
+                                </div>
+                                <button onclick="window.location.href='login.html'" class="btn btn-primary glass-button" style="margin-top: 1.5rem;">
+                                    Go to Login
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="login-footer">
+            <div class="footer-card">
+                <p class="footer-text">
+                    Designed and Developed with <span class="footer-heart">❤️</span> by
+                    <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/admin-signup.js"></script>
+</body>
+</html>
