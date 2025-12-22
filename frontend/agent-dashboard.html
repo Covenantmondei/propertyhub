@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Dashboard | Real Estate</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/agent-dashboard.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .nav-link {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="home.html" class="nav-brand">
+                    <i class="fas fa-home"></i>
+                    <span>Real Estate</span>
+                </a>
+                <a href="home.html" class="nav-link">Home</a>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="properties.html" class="nav-link">Properties</a>
+                    <a href="agent-dashboard.html" class="nav-link active">Dashboard</a>
+                    <a href="chat.html" class="nav-link" id="messages-nav-link">
+                        <i class="fas fa-comments"></i> Messages
+                        <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
+                    </a>
+                    <button class="nav-link" id="notifications-btn" title="Notifications" style="background: none; border: none; cursor: pointer;">
+                        <i class="fas fa-bell"></i> Notifications
+                        <span class="notification-badge" id="notifications-badge" style="display: none;">0</span>
+                    </button>
+                    <div id="authButtons"></div>
+                </div>
+                
+                <button class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <h1>Agent Dashboard</h1>
+                    <p class="text-muted">Welcome back, <span id="agent-name">Agent</span>!</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='new-property.html'">
+                        <i class="fas fa-plus"></i>
+                        Add New Property
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-properties">0</h3>
+                        <p>Total Properties</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="approved-properties">0</h3>
+                        <p>Approved</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="pending-properties">0</h3>
+                        <p>Pending Approval</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-messages">0</h3>
+                        <p>Messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="new-property.html" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3>Add Property</h3>
+                        <p>List a new property for sale or rent</p>
+                    </a>
+
+                    <a href="properties.html" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Browse Properties</h3>
+                        <p>View all listed properties</p>
+                    </a>
+
+                    <a href="#" class="action-card" onclick="scrollToProperties(); return false;">
+                        <div class="action-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3>Manage Listings</h3>
+                        <p>Edit or delete your properties</p>
+                    </a>
+
+                    <a href="chat.html" class="action-card" id="messages-link">
+                        <div class="action-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>View Messages</h3>
+                        <p>Check inquiries and chats</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- My Properties Section -->
+            <div class="properties-section">
+                <div class="section-header">
+                    <h2>My Properties</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="approved">Approved</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-properties" class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading your properties...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-home"></i>
+                    <h3>No Properties Yet</h3>
+                    <p>Start by adding your first property listing</p>
+                    <a href="new-property.html" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Property
+                    </a>
+                </div>
+
+                <!-- Properties Grid -->
+                <div id="properties-grid" class="properties-grid" style="display: none;">
+                    <!-- Properties will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Real Estate Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/agent-dashboard.js"></script>
+</body>
+</html>

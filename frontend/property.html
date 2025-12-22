@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate - Property Details</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/property.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="home.html" class="nav-brand">
+                    <i class="fas fa-home"></i>
+                    <span>Real Estate</span>
+                </a>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="properties.html" class="nav-link">Properties</a>
+                    <button id="list-property-btn" class="nav-link" style="display: none;">List Property</button>
+                    <button id="profile-btn" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Profile</button>
+                </div>
+                
+                <button class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="property-main">
+        <div class="container">
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading property details...</p>
+            </div>
+
+            <!-- Property Details Section -->
+            <section class="property-details" id="property-details" style="display: none;">
+                <!-- Image Gallery -->
+                <div class="property-images-container">
+                    <div class="main-image-wrapper">
+                        <div id="main-image" class="main-image"></div>
+                    </div>
+                    <div id="image-gallery" class="image-gallery"></div>
+                </div>
+
+                <!-- Property Information -->
+                <div class="property-info-container">
+                    <div class="property-header">
+                        <div class="property-badges">
+                            <span class="badge badge-type" id="property-type-badge"></span>
+                            <span class="badge badge-status" id="property-status-badge"></span>
+                        </div>
+                        <h1 id="property-title" class="property-title">Loading...</h1>
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="property-location"></span>
+                        </div>
+                        <div class="property-price" id="property-price"></div>
+                    </div>
+
+                    <!-- Property Features -->
+                    <div class="property-features" id="property-features"></div>
+
+                    <!-- Property Description -->
+                    <div class="property-description-section">
+                        <h3>Description</h3>
+                        <p id="property-description"></p>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div id="property-additional-details"></div>
+
+                    <!-- Amenities -->
+                    <div id="property-amenities"></div>
+
+                    <!-- Action Buttons -->
+                    <div class="property-actions">
+                        <button class="btn btn-primary" onclick="contactAgent()">
+                            <i class="fas fa-envelope"></i>
+                            Contact Agent
+                        </button>
+                        <button class="btn btn-secondary" onclick="scheduleVisit()">
+                            <i class="fas fa-calendar"></i>
+                            Schedule Visit
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Designed and Developed with <span class="footer-heart">❤️</span> by
+                <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+            </p>
+            <div class="footer-actions">
+                <span id="footer-user-info" class="text-muted" style="display: none;"></span>
+                <button id="logout-btn" class="btn-logout">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/property.js"></script>
+</body>
+</html>

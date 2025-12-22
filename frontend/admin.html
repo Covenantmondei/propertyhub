@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PropertyHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/alerts.css">
+</head>
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="home.html" class="sidebar-logo">
+                <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>PropertyHub Admin</span>
+            </a>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-link active" data-section="overview">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Overview</span>
+            </a>
+            <a href="#" class="sidebar-link" data-section="pending-properties">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span>Pending Properties</span>
+                <span class="badge-count" id="pending-properties-badge">0</span>
+            </a>
+            <a href="#" class="sidebar-link" data-section="pending-agents">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+                <span>Pending Agents</span>
+                <span class="badge-count" id="pending-agents-badge">0</span>
+            </a>
+            <a href="#" class="sidebar-link" data-section="all-properties">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>All Properties</span>
+            </a>
+            <a href="#" class="sidebar-link" data-section="all-users">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>All Users</span>
+            </a>
+            <a href="#" class="sidebar-link" data-section="activity-logs">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span>Activity Logs</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="admin-info">
+                    <p class="admin-name" id="admin-name">Admin</p>
+                    <p class="admin-role">Administrator</p>
+                </div>
+            </div>
+            <button class="btn-logout-sidebar" id="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Top Bar -->
+        <div class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            
+            <div class="topbar-search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" placeholder="Search..." id="global-search">
+            </div>
+
+            <div class="topbar-actions">
+                <button class="icon-button notification-btn" id="notification-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge" id="notification-badge">0</span>
+                </button>
+                <button id="theme-toggle" class="icon-button" aria-label="Toggle theme">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg class="moon-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <a href="home.html" class="btn-secondary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    View Site
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="admin-content">
+            <!-- Overview Section -->
+            <section class="content-section active" id="overview-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Dashboard Overview</h1>
+                        <p class="section-subtitle">Welcome back! Here's what's happening today.</p>
+                    </div>
+                    <button onclick="refreshOverview()" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card gradient-blue">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Users</p>
+                            <h3 class="stat-value" id="total-users">
+                                <span class="loading-shimmer">Loading...</span>
+                            </h3>
+                            <p class="stat-change positive">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                                <span id="users-change">+0%</span> from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card gradient-green">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Properties</p>
+                            <h3 class="stat-value" id="total-properties">
+                                <span class="loading-shimmer">Loading...</span>
+                            </h3>
+                            <p class="stat-change positive">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+                                <span id="properties-change">+0%</span> from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card gradient-orange">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Pending Approvals</p>
+                            <h3 class="stat-value" id="pending-approvals">
+                                <span class="loading-shimmer">Loading...</span>
+                            </h3>
+                            <p class="stat-change">
+                                <span id="pending-change">0</span> items need attention
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card gradient-purple">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Agents</p>
+                            <h3 class="stat-value" id="total-agents">
+                                <span class="loading-shimmer">Loading...</span>
+                            </h3>
+                            <p class="stat-change">
+                                <span id="agents-active">0</span> active agents
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recent Activity -->
+                <div class="overview-grid">
+                    <div class="quick-actions-card">
+                        <h3 class="card-title">Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="action-btn" onclick="navigateToSection('pending-properties')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span>Review Properties</span>
+                            </button>
+                            <button class="action-btn" onclick="navigateToSection('pending-agents')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="20 8 20 14"/><polyline points="23 11 17 11"/></svg>
+                                <span>Approve Agents</span>
+                            </button>
+                            <button class="action-btn" onclick="navigateToSection('all-users')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <span>Manage Users</span>
+                            </button>
+                            <button class="action-btn" onclick="navigateToSection('activity-logs')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <span>View Activity</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity-card">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <div class="activity-list" id="recent-activity-list">
+                            <div class="loading">Loading recent activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Properties Section -->
+            <section class="content-section" id="pending-properties-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Pending Properties</h1>
+                        <p class="section-subtitle">Review and approve property listings</p>
+                    </div>
+                    <button onclick="loadPendingProperties()" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh
+                    </button>
+                </div>
+                <div id="pending-properties-list" class="list-container"></div>
+            </section>
+
+            <!-- Pending Agents Section -->
+            <section class="content-section" id="pending-agents-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Pending Agents</h1>
+                        <p class="section-subtitle">Review and approve agent registrations</p>
+                    </div>
+                    <button onclick="loadPendingAgents()" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh
+                    </button>
+                </div>
+                <div id="pending-agents-list" class="list-container"></div>
+            </section>
+
+            <!-- All Properties Section -->
+            <section class="content-section" id="all-properties-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">All Properties</h1>
+                        <p class="section-subtitle">Manage all property listings</p>
+                    </div>
+                    <div class="header-actions">
+                        <select id="properties-status-filter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="approved">Approved</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <button onclick="loadAllProperties()" class="btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="all-properties-list" class="list-container"></div>
+            </section>
+
+            <!-- All Users Section -->
+            <section class="content-section" id="all-users-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">All Users</h1>
+                        <p class="section-subtitle">Manage user accounts and permissions</p>
+                    </div>
+                    <div class="header-actions">
+                        <select id="user-role-filter" class="filter-select">
+                            <option value="">All Roles</option>
+                            <option value="buyer">Buyers</option>
+                            <option value="agent">Agents</option>
+                            <option value="admin">Admins</option>
+                        </select>
+                        <button onclick="loadAllUsers()" class="btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="all-users-list" class="list-container"></div>
+            </section>
+
+            <!-- Activity Logs Section -->
+            <section class="content-section" id="activity-logs-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Activity Logs</h1>
+                        <p class="section-subtitle">Track system activities and changes</p>
+                    </div>
+                    <div class="header-actions">
+                        <select id="logs-days-filter" class="filter-select">
+                            <option value="7">Last 7 days</option>
+                            <option value="14">Last 14 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                        <button onclick="loadActivityLogs()" class="btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="activity-logs-list" class="list-container"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="rejection-modal" class="modal">
+        <div class="modal-overlay" onclick="closeRejectionModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Rejection Reason</h3>
+                <button class="modal-close" onclick="closeRejectionModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea id="rejection-reason" class="form-textarea" placeholder="Enter reason for rejection..." rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeRejectionModal()" class="btn-secondary">Cancel</button>
+                <button onclick="submitRejection()" class="btn-danger">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

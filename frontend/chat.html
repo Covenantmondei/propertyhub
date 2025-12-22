@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | Real Estate</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="home.html" class="nav-brand">
+                    <i class="fas fa-home"></i>
+                    <span>Real Estate</span>
+                </a>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="properties.html" class="nav-link">Properties</a>
+                    <button id="list-property-btn" class="nav-link" style="display: none;">List Property</button>
+                    <button id="profile-btn" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Profile</button>
+                </div>
+                
+                <button class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Chat Container -->
+    <main class="chat-main">
+        <div class="chat-container">
+            <!-- Conversations Sidebar -->
+            <aside class="conversations-sidebar">
+                <div class="sidebar-header">
+                    <h2>Messages</h2>
+                    <button class="btn-icon" id="refresh-conversations" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="conversation-search" placeholder="Search conversations...">
+                </div>
+
+                <!-- Conversations List -->
+                <div class="conversations-list" id="conversations-list">
+                    <!-- Loading State -->
+                    <div class="conversations-loading" id="conversations-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading conversations...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="conversations-empty" id="conversations-empty" style="display: none;">
+                        <i class="fas fa-comments"></i>
+                        <h3>No conversations yet</h3>
+                        <p>Start chatting by inquiring about a property</p>
+                        <a href="properties.html" class="btn btn-primary">Browse Properties</a>
+                    </div>
+
+                    <!-- Conversations will be dynamically loaded here -->
+                </div>
+            </aside>
+
+            <!-- Chat Area -->
+            <section class="chat-area">
+                <!-- Welcome State -->
+                <div class="chat-welcome" id="chat-welcome">
+                    <div class="welcome-content">
+                        <i class="fas fa-comments"></i>
+                        <h2>Welcome to Messages</h2>
+                        <p>Select a conversation from the sidebar to start chatting</p>
+                    </div>
+                </div>
+
+                <!-- Active Chat -->
+                <div class="active-chat" id="active-chat" style="display: none;">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="chat-header-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <h3 id="chat-user-name">User Name</h3>
+                                <p id="chat-property-info">Property Name</p>
+                            </div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <button class="btn-icon" id="view-property-btn" title="View Property">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <button class="btn-icon" id="close-chat-btn" title="Close Chat">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages Container -->
+                    <div class="messages-container" id="messages-container">
+                        <!-- Loading Messages -->
+                        <div class="messages-loading" id="messages-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading messages...</p>
+                        </div>
+
+                        <!-- Messages will be dynamically loaded here -->
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="message-input-container">
+                        <div class="message-input-wrapper">
+                            <textarea 
+                                id="message-input" 
+                                placeholder="Type your message..."
+                                rows="1"
+                            ></textarea>
+                            <button class="btn-send" id="send-message-btn" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-actions">
+                            <button class="btn-icon" title="Attach file" disabled>
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="btn-icon" title="Emoji" disabled>
+                                <i class="fas fa-smile"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Designed and Developed with <span class="footer-heart">❤️</span> by
+                <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+            </p>
+            <div class="footer-actions">
+                <span id="footer-user-info" class="text-muted" style="display: none;"></span>
+                <button id="logout-btn" class="btn-logout">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

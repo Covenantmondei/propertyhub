@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropertyHub - Find Your Dream Property</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .btn-icon {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="flex items-center gap-6">
+                <a href="home.html" class="logo">PropertyHub</a>
+                <nav>
+                    <ul class="nav-menu desktop">
+                        <li><a href="home.html" class="nav-link active">Home</a></li>
+                        <li><a href="properties.html" class="nav-link">Properties</a></li>
+                        <li><a href="#" class="nav-link">Search</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-icon btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon moon-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <!-- Messages Button -->
+                <a href="chat.html" class="btn btn-icon btn-ghost" id="messages-btn" title="Messages">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
+                </a>
+                <!-- Notifications Icon (for agents) -->
+                <button class="btn btn-icon btn-ghost" id="notifications-btn" title="Notifications" style="display: none;">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge" id="notifications-badge" style="display: none;">0</span>
+                </button>
+                <!-- Only show for agents -->
+                <a href="new-property.html" class="btn btn-sm btn-primary desktop-only" id="list-property-btn" style="display: none;">
+                    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    List Property
+                </a>
+                <button class="btn btn-icon btn-ghost" id="profile-btn" title="Profile">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="btn btn-icon btn-ghost mobile-menu-btn" id="mobile-menu-toggle">
+                    <svg class="icon menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <svg class="icon close-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <nav class="grid gap-2">
+                <a href="home.html" class="nav-link active">Home</a>
+                <a href="properties.html" class="nav-link">Properties</a>
+                <a href="chat.html" class="nav-link">Messages</a>
+                <a href="#" class="nav-link">Search</a>
+                <a href="new-property.html" class="nav-link" id="list-property-mobile" style="display: none;">List Property</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section py-12">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1 class="hero-title">Find Your Dream Property</h1>
+                            <p class="hero-description">Browse thousands of listings, connect with agents, and find the perfect home.</p>
+                        </div>
+                        <div class="hero-actions">
+                            <a href="properties.html" class="btn btn-lg btn-primary">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                Browse Properties
+                            </a>
+                            <!-- Only show for agents -->
+                            <a href="new-property.html" class="btn btn-lg btn-outline" id="list-property-hero" style="display: none;">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                List Your Property
+                            </a>
+                        </div>
+                    </div>
+                    <div class="quick-search-card">
+                        <div class="card">
+                            <div class="card-content p-4">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <svg class="icon text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                    <h2 class="text-lg font-semibold">Quick Search</h2>
+                                </div>
+                                <form id="quick-search-form" class="search-form">
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Min Price</label>
+                                            <select class="form-select" name="minPrice">
+                                                <option value="">Any</option>
+                                                <option value="100000">₦100,000</option>
+                                                <option value="200000">₦200,000</option>
+                                                <option value="500000">₦500,000</option>
+                                                <option value="1000000">₦1,000,000</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Max Price</label>
+                                            <select class="form-select" name="maxPrice">
+                                                <option value="">Any</option>
+                                                <option value="500000">₦500,000</option>
+                                                <option value="1000000">₦1,000,000</option>
+                                                <option value="2000000">₦2,000,000</option>
+                                                <option value="5000000">₦5,000,000+</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Bedrooms</label>
+                                            <select class="form-select" name="bedrooms">
+                                                <option value="">Any</option>
+                                                <option value="1">1+</option>
+                                                <option value="2">2+</option>
+                                                <option value="3">3+</option>
+                                                <option value="4">4+</option>
+                                                <option value="5">5+</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Bathrooms</label>
+                                            <select class="form-select" name="bathrooms">
+                                                <option value="">Any</option>
+                                                <option value="1">1+</option>
+                                                <option value="2">2+</option>
+                                                <option value="3">3+</option>
+                                                <option value="4">4+</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label class="form-label">Property Type</label>
+                                        <select class="form-select" name="propertyType">
+                                            <option value="">Any</option>
+                                            <option value="house">House</option>
+                                            <option value="apartment">Apartment</option>
+                                            <option value="condo">Condo</option>
+                                            <option value="townhouse">Townhouse</option>
+                                            <option value="land">Land</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label class="form-label">Location</label>
+                                        <div class="location-input">
+                                            <svg class="location-icon icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                            <input type="text" class="form-input" name="location" placeholder="Location">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-full">Search Properties</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Properties Section -->
+        <section class="py-12">
+            <div class="container">
+                <div class="flex flex-col items-center justify-between gap-4 mb-8 section-header">
+                    <div>
+                        <h2 class="text-3xl font-bold">Featured Properties</h2>
+                        <p class="text-muted">Discover our handpicked selection of premium properties</p>
+                    </div>
+                    <a href="properties.html" class="btn btn-outline desktop-only">View All Properties</a>
+                </div>
+                <div class="grid grid-cols-3 gap-6" id="featured-properties">
+                    <!-- Properties will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Designed and Developed with <span class="footer-heart">❤️</span> by
+                <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+            </p>
+            <div class="footer-actions">
+                <span id="footer-user-info" class="text-muted" style="display: none;"></span>
+                <button id="logout-btn" class="btn-logout">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

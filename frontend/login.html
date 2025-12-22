@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropertyHub - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/alerts.css">
+</head>
+<body class="login-page">
+    <main class="login-main">
+        <div class="login-background"></div>
+        <div class="login-overlay"></div>
+        
+        <div class="login-content">
+            <div class="auth-card" id="auth-card">
+                <div class="glass-card">
+                    <div class="glass-content" id="auth-content">
+                        <!-- Login Step -->
+                        <div class="auth-step active" id="login-step">
+                            <div class="auth-header">
+                                <h1 class="auth-title">Welcome Back</h1>
+                                <p class="auth-subtitle">Sign in to your account</p>
+                            </div>
+                            <form id="login-form" class="auth-form">
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Username or Email</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        <input type="text" class="form-input glass-input" id="login-username" placeholder="Enter your username or email" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Password</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <input type="password" class="form-input glass-input" id="login-password" placeholder="Enter your password" required>
+                                        <button type="button" class="toggle-password" data-target="login-password">
+                                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg class="icon-eye-off hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-footer">
+                                    <button type="button" class="link-button" onclick="showStep('forgot-password')">Forgot password?</button>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full glass-button">Sign In</button>
+                            </form>
+                            <div class="auth-footer">
+                                <button type="button" class="link-button" onclick="showStep('signup')">Don't have an account? Sign up</button>
+                            </div>
+                        </div>
+
+                        <!-- Signup Step -->
+                        <div class="auth-step" id="signup-step">
+                            <div class="auth-header">
+                                <h1 class="auth-title">Create Account</h1>
+                                <p class="auth-subtitle">Join us today</p>
+                            </div>
+                            <form id="signup-form" class="auth-form">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label class="form-label glass-label">First Name</label>
+                                        <div class="input-with-icon">
+                                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            <input type="text" class="form-input glass-input" id="signup-first-name" placeholder="First name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label glass-label">Last Name</label>
+                                        <div class="input-with-icon">
+                                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            <input type="text" class="form-input glass-input" id="signup-last-name" placeholder="Last name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Username</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                                        <input type="text" class="form-input glass-input" id="signup-username" placeholder="Choose a username" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Email</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                        <input type="email" class="form-input glass-input" id="signup-email" placeholder="Enter your email" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Password</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <input type="password" class="form-input glass-input" id="signup-password" placeholder="Create a password" required>
+                                        <button type="button" class="toggle-password" data-target="signup-password">
+                                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg class="icon-eye-off hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="password-strength" id="password-strength"></div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Confirm Password</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <input type="password" class="form-input glass-input" id="signup-confirm-password" placeholder="Confirm your password" required>
+                                        <button type="button" class="toggle-password" data-target="signup-confirm-password">
+                                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg class="icon-eye-off hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="password-match-message"></div>
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Account Type</label>
+                                    <div class="role-selector">
+                                        <label class="role-option">
+                                            <input type="radio" name="role" value="buyer" checked>
+                                            <div class="role-card">
+                                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                <div class="role-title">Buyer</div>
+                                                <div class="role-description">Looking for property</div>
+                                            </div>
+                                        </label>
+                                        <label class="role-option">
+                                            <input type="radio" name="role" value="agent">
+                                            <div class="role-card">
+                                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                                <div class="role-title">Agent</div>
+                                                <div class="role-description">Listing properties</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full glass-button">Sign Up</button>
+                            </form>
+                            <div class="auth-footer">
+                                <button type="button" class="link-button" onclick="showStep('login')">Already have an account? Sign in</button>
+                            </div>
+                        </div>
+
+                        <!-- Forgot Password Step -->
+                        <div class="auth-step" id="forgot-password-step">
+                            <button class="back-button" onclick="showStep('login')">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            </button>
+                            <div class="auth-header">
+                                <h1 class="auth-title">Reset Password</h1>
+                                <p class="auth-subtitle">Enter your email to receive reset instructions</p>
+                            </div>
+                            <form id="forgot-password-form" class="auth-form">
+                                <div class="form-group">
+                                    <label class="form-label glass-label">Email</label>
+                                    <div class="input-with-icon">
+                                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                        <input type="email" class="form-input glass-input" id="forgot-email" placeholder="Enter your email" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full glass-button">Send Reset Link</button>
+                            </form>
+                        </div>
+
+                        <!-- Success Step -->
+                        <div class="auth-step" id="success-step">
+                            <div class="success-content">
+                                <div class="success-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <h1 class="auth-title" id="success-title">Welcome!</h1>
+                                <p class="auth-subtitle" id="success-message">Redirecting to home page...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="login-footer">
+            <div class="footer-card">
+                <p class="footer-text">
+                    Designed and Developed with <span class="footer-heart">❤️</span> by
+                    <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
