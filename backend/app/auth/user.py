@@ -153,8 +153,8 @@ async def verify_email(token: str, db: Session):
 async def send_verification_email(email: str, user_id: int):
     token = create_verification_token(user_id)
 
-    link = os.environ.get("URL")
-    verification_link = f"{link}/auth/verify-email?token={token}"
+    link = os.environ.get("FRONTEND_URL")
+    verification_link = f"{link}/verify-email.html?token={token}"
 
     message = MessageSchema(
         subject="verify your email",
