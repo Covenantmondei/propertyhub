@@ -181,6 +181,11 @@ async function performAdminSignup(event) {
         // Optional: Show success alert
         showAlert('Admin account created successfully! Please check your email to verify your account.', 'success', 'Registration Successful');
         
+        // Redirect to login page after showing success notification
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+        
     } catch (err) {
         console.error('Admin signup error:', err);
         showAlert(err.message || 'Admin registration failed. Please try again.', 'error', 'Registration Failed');

@@ -1,5 +1,4 @@
-// API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // Get all state elements
 const loadingState = document.getElementById('loading-state');
@@ -39,6 +38,9 @@ async function verifyEmail(token) {
         return;
     }
 
+    console.log('Attempting to verify email with token:', token);
+    console.log('API URL:', `${API_BASE_URL}/auth/verify-email?token=${token}`);
+
     try {
         const response = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}`, {
             method: 'GET',
@@ -47,7 +49,11 @@ async function verifyEmail(token) {
             }
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
         const data = await response.json();
+        console.log('Response data:', data);
 
         if (response.ok) {
             // Check if already verified
@@ -57,11 +63,10 @@ async function verifyEmail(token) {
                 // Success
                 showState(successState);
                 
-                // Optional: Auto-redirect to login after a few seconds
+                // Auto-redirect to login after 2 seconds
                 setTimeout(() => {
-                    // Uncomment the line below to enable auto-redirect
-                    // window.location.href = 'login.html';
-                }, 5000);
+                    window.location.href = 'login.html';
+                }, 2000);
             }
         } else {
             // Handle error responses
@@ -69,6 +74,7 @@ async function verifyEmail(token) {
         }
     } catch (error) {
         console.error('Verification error:', error);
+        console.error('Error details:', error.message, error.stack);
         showError('Network error. Please check your connection and try again.');
     }
 }
