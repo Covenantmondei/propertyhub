@@ -56,6 +56,44 @@ async function initializeChat() {
 }
 
 function setupEventListeners() {
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+    
+    // Profile button
+    const profileBtn = document.getElementById('profile-btn');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', () => {
+            const user = getUser();
+            if (user) {
+                if (user.role === 'agent') {
+                    window.location.href = 'agent-dashboard.html';
+                } else if (user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'home.html';
+                }
+            }
+        });
+    }
+    
+    // List property button (for agents)
+    const listPropertyBtn = document.getElementById('list-property-btn');
+    if (listPropertyBtn) {
+        const user = getUser();
+        if (user && user.role === 'agent') {
+            listPropertyBtn.style.display = 'block';
+            listPropertyBtn.addEventListener('click', () => {
+                window.location.href = 'new-property.html';
+            });
+        }
+    }
+    
     // Refresh conversations button
     document.getElementById('refresh-conversations').addEventListener('click', loadConversations);
     
