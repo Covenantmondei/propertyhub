@@ -142,7 +142,7 @@ def create_new_conversation(
         other_user_name=f"{property_obj.agent.first_name} {property_obj.agent.last_name}",
         other_user_email=property_obj.agent.email,
         unread_count=0
-    ), message, property_obj.agent_id
+    ), message, property_obj.agent_id, conversation
 
 
 def get_user_conversations(

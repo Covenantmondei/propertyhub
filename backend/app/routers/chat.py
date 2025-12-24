@@ -24,10 +24,10 @@ async def create_conversation(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new conversation"""
-    conversation_detail, message, agent_id = create_new_conversation(db, request, current_user)
+    conversation_detail, message, agent_id, conversation = create_new_conversation(db, request, current_user)
     
     # Create and send notification
-    notification = create_notification(db, agent_id, message, conversation_detail)
+    notification = create_notification(db, agent_id, message, conversation)
     await send_notification(agent_id, {
         "id": notification.id,
         "title": notification.title,
