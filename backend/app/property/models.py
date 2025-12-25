@@ -12,6 +12,23 @@ class ApprovalStatus(str, enum.Enum):
     REJECTED = "rejected"
 
 
+class VisitType(str, enum.Enum):
+    PHYSICAL = "physical"
+    VIRTUAL = "virtual"
+
+
+class VisitStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    PROPOSED_RESCHEDULE = "proposed_reschedule"
+    CONFIRMED = "confirmed"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW_BUYER = "no_show_buyer"
+    NO_SHOW_AGENT = "no_show_agent"
+    DECLINED = "declined"
+
+
 class UserProperty(Base):
     __tablename__ = "properties"
     
@@ -46,6 +63,7 @@ class UserProperty(Base):
     agent = relationship("User", back_populates="properties")
     images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan")
     favorites = relationship("Favorite", back_populates="property", cascade="all, delete-orphan")
+    visit_requests = relationship("VisitRequest", back_populates="property", cascade="all, delete-orphan")
 
 
 class PropertyImage(Base):
@@ -74,3 +92,46 @@ class Favorite(Base):
     # Relationships
     user = relationship("User", back_populates="favorites")
     property = relationship("UserProperty", back_populates="favorites")
+
+
+class VisitRequest(Base):
+    __tablename__ = "visit_requests"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Request details
+    visit_type = Column(String, nullable=False)  # physical or virtual
+    status = Column(String, default=VisitStatus.PENDING.value, index=True)
+    
+    # Buyer's preferred date/time
+    preferred_date = Column(DateTime, nullable=False)
+    preferred_time_start = Column(String, nullable=False)
+    preferred_time_end = Column(String, nullable=False)
+    buyer_note = Column(Text)
+    
+    # Agent's proposed date/time 
+    proposed_date = Column(DateTime)
+    proposed_time_start = Column(String)
+    proposed_time_end = Column(String)
+    agent_note = Column(Text)
+    
+    # Confirmed date/time
+    confirmed_date = Column(DateTime)
+    confirmed_time_start = Column(String)
+    confirmed_time_end = Column(String)
+    
+    # Decline reason
+    decline_reason = Column(Text)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed_at = Column(DateTime)
+    
+    # Relationships
+    property = relationship("UserProperty", back_populates="visit_requests")
+    buyer = relationship("User", foreign_keys=[buyer_id], backref="buyer_visits")
+    agent = relationship("User", foreign_keys=[agent_id], backref="agent_visits")
