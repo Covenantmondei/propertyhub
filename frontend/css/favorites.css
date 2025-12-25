@@ -1,0 +1,162 @@
+/* Favorites page specific styles */
+
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-btn .heart-icon {
+    width: 22px;
+    height: 22px;
+    transition: all 0.3s ease;
+    fill: none;
+    stroke: #64748b;
+    stroke-width: 2;
+}
+
+.favorite-btn.active .heart-icon {
+    fill: #ef4444;
+    stroke: #ef4444;
+    animation: heartBeat 0.3s ease;
+}
+
+.favorite-btn:not(.active):hover .heart-icon {
+    stroke: #ef4444;
+    transform: scale(1.1);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Property card enhancements for favorites */
+.property-card {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.property-card-image {
+    position: relative;
+    cursor: pointer;
+}
+
+.property-card-image img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Empty state styling */
+.empty-message {
+    text-align: center;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.empty-message svg {
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+}
+
+.no-properties {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Loading animation */
+.loading-message {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.loading-message p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+/* Error message styling */
+.error-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.error-message p:first-child {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .favorite-btn {
+    background: rgba(30, 41, 59, 0.95);
+}
+
+[data-theme="dark"] .favorite-btn .heart-icon {
+    stroke: #94a3b8;
+}
+
+[data-theme="dark"] .favorite-btn:not(.active):hover .heart-icon {
+    stroke: #ef4444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .favorite-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .favorite-btn .heart-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .empty-message {
+        padding: 3rem 1.5rem;
+        min-height: 300px;
+    }
+    
+    .empty-message svg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .no-properties {
+        font-size: 1.1rem;
+    }
+}
