@@ -341,7 +341,36 @@ def remove_from_favorites(db: Session, property_id: int, user_id: int):
 def get_user_favorites(db: Session, user_id: int, skip: int = 0, limit: int = 20):
     """Get user's favorite properties"""
     favorites = db.query(Favorite).filter(Favorite.user_id == user_id).offset(skip).limit(limit).all()
-    return favorites
+    
+    # Get full property details for each favorite
+    result = []
+    for fav in favorites:
+        prop = db.query(UserProperty).filter(UserProperty.id == fav.property_id).first()
+        if prop:
+            # Get primary image
+            primary_image = db.query(PropertyImage).filter(
+                PropertyImage.property_id == prop.id,
+                PropertyImage.is_primary == True
+            ).first()
+            
+            prop_dict = {
+                "id": prop.id,
+                "title": prop.title,
+                "property_type": prop.property_type,
+                "listing_type": prop.listing_type,
+                "price": prop.price,
+                "bedrooms": prop.bedrooms,
+                "bathrooms": prop.bathrooms,
+                "area_sqft": prop.area_sqft,
+                "city": prop.city,
+                "state": prop.state,
+                "is_available": prop.is_available,
+                "created_at": prop.created_at,
+                "primary_image": primary_image.image_url if primary_image else None
+            }
+            result.append(prop_dict)
+    
+    return result
 
 
 def get_agent_properties(db: Session, agent_id: int, skip: int = 0, limit: int = 20):
