@@ -24,6 +24,10 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.favorite-btn.active {
+    background: rgba(239, 68, 68, 0.15);
+}
+
 .favorite-btn .heart-icon {
     width: 22px;
     height: 22px;

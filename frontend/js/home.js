@@ -1,8 +1,11 @@
 // Home page JavaScript
 
+let userFavorites = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     // Check authentication before loading page content
     checkAuthentication();
+    loadUserFavorites();
     loadFeaturedProperties();
     setupHeaderSearch();
 });
@@ -20,6 +23,17 @@ function checkAuthentication() {
     }
     
     return true;
+}
+
+async function loadUserFavorites() {
+    try {
+        const favorites = await apiCall('/properties/favorites/me');
+        userFavorites = favorites.map(f => f.id);
+        console.log('User favorites loaded:', userFavorites);
+    } catch (error) {
+        console.error('Failed to load user favorites:', error);
+        userFavorites = [];
+    }
 }
 
 function setupHeaderSearch() {
@@ -80,6 +94,11 @@ async function loadFeaturedProperties() {
             return;
         }
 
+        // Wait for favorites to load if not already loaded
+        if (userFavorites.length === 0) {
+            await loadUserFavorites();
+        }
+
         container.innerHTML = properties.map(property => createPropertyCard(property)).join('');
     } catch (error) {
         console.error('Failed to load properties:', error);
@@ -96,13 +115,19 @@ function createPropertyCard(property) {
     const imageUrl = property.primary_image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop';
     const address = `${property.city}, ${property.state}`;
     const propertyType = property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1);
+    const isFavorite = userFavorites.includes(property.id);
     
     return `
         <a href="property.html?id=${property.id}" class="property-card">
             <div class="card">
-                <div class="property-image">
+                <div class="property-image" style="position: relative;">
                     <img src="${imageUrl}" alt="${property.title}" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'">
                     <span class="badge badge-${statusClass} property-badge">${status}</span>
+                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(${property.id}, this)" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                        <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </button>
                 </div>
                 <div class="card-content">
                     <h3 class="property-title">${property.title}</h3>
@@ -151,4 +176,39 @@ function createPropertyCard(property) {
         </a>
     `;
 }
+
+async function toggleFavorite(propertyId, buttonElement) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showNotification('Please log in to save favorites', 'error');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const isActive = buttonElement.classList.contains('active');
+    
+    try {
+        if (isActive) {
+            // Remove from favorites
+            await apiCall(`/properties/${propertyId}/unfavorite`, { method: 'DELETE' });
+            buttonElement.classList.remove('active');
+            buttonElement.title = 'Add to favorites';
+            userFavorites = userFavorites.filter(id => id !== propertyId);
+            showNotification('Property removed from favorites', 'success');
+        } else {
+            // Add to favorites
+            await apiCall(`/properties/${propertyId}/favorite`, { method: 'POST' });
+            buttonElement.classList.add('active');
+            buttonElement.title = 'Remove from favorites';
+            userFavorites.push(propertyId);
+            showNotification('Property added to favorites', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to update favorite:', error);
+        showNotification('Failed to update favorites. Please try again.', 'error');
+    }
+}
+
+// Make toggleFavorite available globally for inline onclick
+window.toggleFavorite = toggleFavorite;
 

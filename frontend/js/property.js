@@ -328,11 +328,11 @@ async function togglePropertyFavorite() {
     
     try {
         if (isFavorite) {
-            await apiCall(`/properties/${propertyId}/unfavorite`, 'DELETE');
+            await apiCall(`/properties/${propertyId}/unfavorite`, { method: 'DELETE' });
             isFavorite = false;
             showNotification('Property removed from favorites', 'success');
         } else {
-            await apiCall(`/properties/${propertyId}/favorite`, 'POST');
+            await apiCall(`/properties/${propertyId}/favorite`, { method: 'POST' });
             isFavorite = true;
             showNotification('Property added to favorites', 'success');
         }

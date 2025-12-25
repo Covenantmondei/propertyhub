@@ -97,7 +97,7 @@ async function toggleFavorite(propertyId, buttonElement) {
     try {
         if (isActive) {
             // Remove from favorites
-            await apiCall(`/properties/${propertyId}/unfavorite`, 'DELETE');
+            await apiCall(`/properties/${propertyId}/unfavorite`, { method: 'DELETE' });
             
             // Animate card removal
             card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -121,3 +121,5 @@ async function toggleFavorite(propertyId, buttonElement) {
 function viewProperty(id) {
     window.location.href = `property.html?id=${id}`;
 }
+
+window.toggleFavorite = toggleFavorite;

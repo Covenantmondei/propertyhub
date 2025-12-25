@@ -65,7 +65,7 @@
 .favorite-btn {
     position: absolute;
     top: 12px;
-    right: 12px;
+    left: 12px;
     width: 40px;
     height: 40px;
     background: rgba(255, 255, 255, 0.95);
@@ -84,6 +84,10 @@
 .favorite-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-btn.active {
+    background: rgba(239, 68, 68, 0.15);
 }
 
 .favorite-btn .heart-icon {

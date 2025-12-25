@@ -190,14 +190,14 @@ async function toggleFavorite(propertyId, buttonElement) {
     try {
         if (isActive) {
             // Remove from favorites
-            await apiCall(`/properties/${propertyId}/unfavorite`, 'DELETE');
+            await apiCall(`/properties/${propertyId}/unfavorite`, { method: 'DELETE' });
             buttonElement.classList.remove('active');
             buttonElement.title = 'Add to favorites';
             userFavorites = userFavorites.filter(id => id !== propertyId);
             showAlert('Property removed from favorites', 'success');
         } else {
             // Add to favorites
-            await apiCall(`/properties/${propertyId}/favorite`, 'POST');
+            await apiCall(`/properties/${propertyId}/favorite`, { method: 'POST' });
             buttonElement.classList.add('active');
             buttonElement.title = 'Remove from favorites';
             userFavorites.push(propertyId);
@@ -212,3 +212,8 @@ async function toggleFavorite(propertyId, buttonElement) {
 function viewProperty(id) {
     window.location.href = `property.html?id=${id}`;
 }
+
+// Make toggleFavorite available globally for inline onclick
+window.toggleFavorite = toggleFavorite;
+window.viewProperty = viewProperty;
+window.togglePropertyFavorite = togglePropertyFavorite;
