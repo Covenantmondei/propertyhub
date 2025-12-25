@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check authentication before loading page content
     checkAuthentication();
     loadFeaturedProperties();
-    setupQuickSearch();
+    setupHeaderSearch();
 });
 
 function checkAuthentication() {
@@ -20,6 +20,52 @@ function checkAuthentication() {
     }
     
     return true;
+}
+
+function setupHeaderSearch() {
+    const searchToggleBtn = document.getElementById('search-toggle-btn');
+    const searchBarContainer = document.getElementById('search-bar-container');
+    const searchForm = document.getElementById('header-search-form');
+    
+    // Toggle search bar visibility
+    if (searchToggleBtn && searchBarContainer) {
+        searchToggleBtn.addEventListener('click', () => {
+            if (searchBarContainer.style.display === 'none') {
+                searchBarContainer.style.display = 'block';
+            } else {
+                searchBarContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Handle search form submission
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(searchForm);
+            const params = new URLSearchParams();
+            
+            // Map form fields to backend query parameters
+            const fieldMapping = {
+                'minPrice': 'min_price',
+                'maxPrice': 'max_price',
+                'bedrooms': 'bedrooms',
+                'bathrooms': 'bathrooms',
+                'propertyType': 'property_type',
+                'location': 'city'  // Simplified - backend uses city and state separately
+            };
+            
+            for (const [key, value] of formData.entries()) {
+                if (value) {
+                    const backendKey = fieldMapping[key] || key;
+                    params.append(backendKey, value);
+                }
+            }
+            
+            window.location.href = `properties.html?${params.toString()}`;
+        });
+    }
 }
 
 async function loadFeaturedProperties() {
@@ -106,32 +152,3 @@ function createPropertyCard(property) {
     `;
 }
 
-function setupQuickSearch() {
-    const form = document.getElementById('quick-search-form');
-    
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(form);
-        const params = new URLSearchParams();
-        
-        // Map form fields to backend query parameters
-        const fieldMapping = {
-            'minPrice': 'min_price',
-            'maxPrice': 'max_price',
-            'bedrooms': 'bedrooms',
-            'bathrooms': 'bathrooms',
-            'propertyType': 'property_type',
-            'location': 'city'  // Simplified - backend uses city and state separately
-        };
-        
-        for (const [key, value] of formData.entries()) {
-            if (value) {
-                const backendKey = fieldMapping[key] || key;
-                params.append(backendKey, value);
-            }
-        }
-        
-        window.location.href = `properties.html?${params.toString()}`;
-    });
-}

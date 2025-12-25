@@ -429,6 +429,47 @@
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
 }
 
+.property-actions .btn-favorite {
+    background: white;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    flex: 0 0 auto;
+    min-width: 120px;
+}
+
+.property-actions .btn-favorite:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.property-actions .btn-favorite.active {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.property-actions .btn-favorite .heart-icon {
+    fill: none;
+    stroke: currentColor;
+    transition: all 0.3s ease;
+}
+
+.property-actions .btn-favorite.active .heart-icon {
+    fill: #ef4444;
+    stroke: #ef4444;
+    animation: heartBeat 0.3s ease;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 /* Mobile Navigation Toggle */
 .nav-toggle {
     display: none;

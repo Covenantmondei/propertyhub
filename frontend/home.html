@@ -36,11 +36,15 @@
                     <ul class="nav-menu desktop">
                         <li><a href="home.html" class="nav-link active">Home</a></li>
                         <li><a href="properties.html" class="nav-link">Properties</a></li>
+                        <li><a href="favorites.html" class="nav-link">Favorites</a></li>
                         <li><a href="#" class="nav-link">Search</a></li>
                     </ul>
                 </nav>
             </div>
             <div class="header-actions">
+                <button class="btn btn-icon btn-ghost" id="search-toggle-btn" aria-label="Search" title="Search Properties">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
                 <button class="btn btn-icon btn-ghost" id="theme-toggle" aria-label="Toggle theme">
                     <svg class="icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                     <svg class="icon moon-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -73,10 +77,80 @@
             <nav class="grid gap-2">
                 <a href="home.html" class="nav-link active">Home</a>
                 <a href="properties.html" class="nav-link">Properties</a>
+                <a href="favorites.html" class="nav-link">Favorites</a>
                 <a href="chat.html" class="nav-link">Messages</a>
                 <a href="#" class="nav-link">Search</a>
                 <a href="new-property.html" class="nav-link" id="list-property-mobile" style="display: none;">List Property</a>
             </nav>
+        </div>
+        <!-- Search Bar (Hidden by default) -->
+        <div class="search-bar-container" id="search-bar-container" style="display: none;">
+            <div class="container">
+                <form id="header-search-form" class="header-search-form">
+                    <div class="search-inputs">
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-input" name="location" placeholder="City, State...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Property Type</label>
+                            <select class="form-select" name="propertyType">
+                                <option value="">Any</option>
+                                <option value="house">House</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="condo">Condo</option>
+                                <option value="townhouse">Townhouse</option>
+                                <option value="land">Land</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Min Price</label>
+                            <select class="form-select" name="minPrice">
+                                <option value="">Any</option>
+                                <option value="100000">₦100,000</option>
+                                <option value="200000">₦200,000</option>
+                                <option value="500000">₦500,000</option>
+                                <option value="1000000">₦1,000,000</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Max Price</label>
+                            <select class="form-select" name="maxPrice">
+                                <option value="">Any</option>
+                                <option value="500000">₦500,000</option>
+                                <option value="1000000">₦1,000,000</option>
+                                <option value="2000000">₦2,000,000</option>
+                                <option value="5000000">₦5,000,000+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bedrooms</label>
+                            <select class="form-select" name="bedrooms">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bathrooms</label>
+                            <select class="form-select" name="bathrooms">
+                                <option value="">Any</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary search-submit-btn">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </header>
 
@@ -87,7 +161,7 @@
                 <div class="hero-grid">
                     <div class="hero-content">
                         <div class="hero-text">
-                            <h1 class="hero-title">Find Your Dream Property</h1>
+                            <h1 class="hero-title">Find Your Dream Property at PropertyHub</h1>
                             <p class="hero-description">Browse thousands of listings, connect with agents, and find the perfect home.</p>
                         </div>
                         <div class="hero-actions">
@@ -100,82 +174,6 @@
                                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                                 List Your Property
                             </a>
-                        </div>
-                    </div>
-                    <div class="quick-search-card">
-                        <div class="card">
-                            <div class="card-content p-4">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <svg class="icon text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                                    <h2 class="text-lg font-semibold">Quick Search</h2>
-                                </div>
-                                <form id="quick-search-form" class="search-form">
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div class="form-group">
-                                            <label class="form-label">Min Price</label>
-                                            <select class="form-select" name="minPrice">
-                                                <option value="">Any</option>
-                                                <option value="100000">₦100,000</option>
-                                                <option value="200000">₦200,000</option>
-                                                <option value="500000">₦500,000</option>
-                                                <option value="1000000">₦1,000,000</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Max Price</label>
-                                            <select class="form-select" name="maxPrice">
-                                                <option value="">Any</option>
-                                                <option value="500000">₦500,000</option>
-                                                <option value="1000000">₦1,000,000</option>
-                                                <option value="2000000">₦2,000,000</option>
-                                                <option value="5000000">₦5,000,000+</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div class="form-group">
-                                            <label class="form-label">Bedrooms</label>
-                                            <select class="form-select" name="bedrooms">
-                                                <option value="">Any</option>
-                                                <option value="1">1+</option>
-                                                <option value="2">2+</option>
-                                                <option value="3">3+</option>
-                                                <option value="4">4+</option>
-                                                <option value="5">5+</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">Bathrooms</label>
-                                            <select class="form-select" name="bathrooms">
-                                                <option value="">Any</option>
-                                                <option value="1">1+</option>
-                                                <option value="2">2+</option>
-                                                <option value="3">3+</option>
-                                                <option value="4">4+</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label">Property Type</label>
-                                        <select class="form-select" name="propertyType">
-                                            <option value="">Any</option>
-                                            <option value="house">House</option>
-                                            <option value="apartment">Apartment</option>
-                                            <option value="condo">Condo</option>
-                                            <option value="townhouse">Townhouse</option>
-                                            <option value="land">Land</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label">Location</label>
-                                        <div class="location-input">
-                                            <svg class="location-icon icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                            <input type="text" class="form-input" name="location" placeholder="Location">
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-full">Search Properties</button>
-                                </form>
-                            </div>
                         </div>
                     </div>
                 </div>

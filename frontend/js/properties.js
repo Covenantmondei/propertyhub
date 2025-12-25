@@ -2,6 +2,7 @@
 
 let allProperties = [];
 let currentFilters = {};
+let userFavorites = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Properties page loaded');
@@ -9,10 +10,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Get URL parameters if any
     currentFilters = getAllUrlParameters();
     
+    await loadUserFavorites();
     await loadProperties();
     setupFilters();
     populateFiltersFromUrl();
 });
+
+async function loadUserFavorites() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        userFavorites = [];
+        return;
+    }
+    
+    try {
+        const favorites = await apiCall('/properties/favorites/me');
+        userFavorites = favorites.map(f => f.id);
+        console.log('User favorites loaded:', userFavorites);
+    } catch (error) {
+        console.error('Failed to load user favorites:', error);
+        userFavorites = [];
+    }
+}
 
 async function loadProperties() {
     const container = document.getElementById('properties-container');
@@ -85,17 +104,30 @@ function displayProperties(properties) {
         return;
     }
 
+    const token = localStorage.getItem('authToken');
+    const showFavorites = !!token;
+    
     container.innerHTML = `
         <div class="properties-grid">
             ${properties.map(property => {
                 const imageUrl = property.primary_image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop';
                 const location = `${property.city}, ${property.state}`;
                 const propertyType = property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1);
+                const isFavorite = userFavorites.includes(property.id);
                 
                 return `
-                    <div class="property-card" onclick="viewProperty(${property.id})">
-                        <img src="${imageUrl}" alt="${property.title}" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'">
-                        <div class="property-card-content">
+                    <div class="property-card">
+                        <div class="property-card-image" onclick="viewProperty(${property.id})">
+                            <img src="${imageUrl}" alt="${property.title}" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'">
+                            ${showFavorites ? `
+                                <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${property.id}, this)" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                                    <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <div class="property-card-content" onclick="viewProperty(${property.id})">
                             <h3>${property.title}</h3>
                             <p class="price">${formatCurrency(property.price)}</p>
                             <p class="location">${location}</p>
@@ -143,6 +175,38 @@ function filterProperties() {
     });
 
     displayProperties(filtered);
+}
+
+async function toggleFavorite(propertyId, buttonElement) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showAlert('Please log in to save favorites', 'error');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const isActive = buttonElement.classList.contains('active');
+    
+    try {
+        if (isActive) {
+            // Remove from favorites
+            await apiCall(`/properties/${propertyId}/unfavorite`, 'DELETE');
+            buttonElement.classList.remove('active');
+            buttonElement.title = 'Add to favorites';
+            userFavorites = userFavorites.filter(id => id !== propertyId);
+            showAlert('Property removed from favorites', 'success');
+        } else {
+            // Add to favorites
+            await apiCall(`/properties/${propertyId}/favorite`, 'POST');
+            buttonElement.classList.add('active');
+            buttonElement.title = 'Remove from favorites';
+            userFavorites.push(propertyId);
+            showAlert('Property added to favorites', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to update favorite:', error);
+        showAlert('Failed to update favorites. Please try again.', 'error');
+    }
 }
 
 function viewProperty(id) {

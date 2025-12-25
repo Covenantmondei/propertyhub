@@ -55,6 +55,63 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
+    position: relative;
+}
+
+.property-card-image {
+    position: relative;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-btn .heart-icon {
+    width: 22px;
+    height: 22px;
+    transition: all 0.3s ease;
+    fill: none;
+    stroke: #64748b;
+    stroke-width: 2;
+}
+
+.favorite-btn.active .heart-icon {
+    fill: #ef4444;
+    stroke: #ef4444;
+    animation: heartBeat 0.3s ease;
+}
+
+.favorite-btn:not(.active):hover .heart-icon {
+    stroke: #ef4444;
+    transform: scale(1.1);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
 .property-card:hover {

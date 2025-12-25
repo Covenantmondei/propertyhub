@@ -1,6 +1,7 @@
 // Individual property page JavaScript
 
 let propertyId = null;
+let isFavorite = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Property detail page loaded');
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     await loadPropertyDetails();
+    await checkIfFavorite();
 });
 
 async function loadPropertyDetails() {
@@ -279,6 +281,66 @@ function scheduleVisit() {
     }
 
     showNotification('Visit scheduling will be implemented soon', 'info');
+}
+
+async function checkIfFavorite() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    
+    // Show the favorite button if user is logged in
+    const favoriteBtn = document.getElementById('favorite-btn');
+    if (favoriteBtn) {
+        favoriteBtn.style.display = 'flex';
+    }
+    
+    try {
+        const favorites = await apiCall('/properties/favorites/me');
+        isFavorite = favorites.some(f => f.id === parseInt(propertyId));
+        updateFavoriteButton();
+    } catch (error) {
+        console.error('Failed to check if property is favorite:', error);
+    }
+}
+
+function updateFavoriteButton() {
+    const favoriteBtn = document.getElementById('favorite-btn');
+    if (!favoriteBtn) return;
+    
+    const heartIcon = favoriteBtn.querySelector('.heart-icon');
+    if (isFavorite) {
+        favoriteBtn.classList.add('active');
+        favoriteBtn.title = 'Remove from favorites';
+    } else {
+        favoriteBtn.classList.remove('active');
+        favoriteBtn.title = 'Add to favorites';
+    }
+}
+
+async function togglePropertyFavorite() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showNotification('Please log in to save favorites', 'error');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const favoriteBtn = document.getElementById('favorite-btn');
+    
+    try {
+        if (isFavorite) {
+            await apiCall(`/properties/${propertyId}/unfavorite`, 'DELETE');
+            isFavorite = false;
+            showNotification('Property removed from favorites', 'success');
+        } else {
+            await apiCall(`/properties/${propertyId}/favorite`, 'POST');
+            isFavorite = true;
+            showNotification('Property added to favorites', 'success');
+        }
+        updateFavoriteButton();
+    } catch (error) {
+        console.error('Failed to update favorite:', error);
+        showNotification('Failed to update favorites. Please try again.', 'error');
+    }
 }
 
 // Helper function to format currency

@@ -1,27 +1,76 @@
 /* Home page specific styles */
 
+/* Search Bar Container */
+.search-bar-container {
+    background: hsl(var(--background));
+    border-bottom: 1px solid hsl(var(--border));
+    padding: 1.5rem 0;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header-search-form {
+    width: 100%;
+}
+
+.search-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.search-inputs .form-group {
+    margin-bottom: 0;
+}
+
+.search-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .search-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-submit-btn {
+        width: 100%;
+    }
+}
+
 .hero-section {
     background: linear-gradient(to right, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.05));
 }
 
 .hero-grid {
-    display: grid;
-    gap: 1.5rem;
+    display: flex;
     align-items: center;
-}
-
-@media (min-width: 1024px) {
-    .hero-grid {
-        grid-template-columns: 1fr 400px;
-        gap: 3rem;
-    }
+    justify-content: center;
 }
 
 .hero-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    text-align: center;
     gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero-text {
@@ -52,6 +101,7 @@
     max-width: 600px;
     color: hsl(var(--muted-foreground));
     font-size: 1rem;
+    margin: 0 auto;
 }
 
 @media (min-width: 768px) {
@@ -64,44 +114,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    max-width: 400px;
 }
 
 @media (min-width: 400px) {
     .hero-actions {
         flex-direction: row;
+        justify-content: center;
     }
-}
-
-.quick-search-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quick-search-card .card {
-    width: 100%;
-    max-width: 28rem;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-.search-form .form-group {
-    margin-bottom: 0;
-}
-
-.location-input {
-    position: relative;
-}
-
-.location-icon {
-    position: absolute;
-    left: 0.625rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: hsl(var(--muted-foreground));
-}
-
-.location-input .form-input {
-    padding-left: 2.5rem;
 }
 
 .section-header {
