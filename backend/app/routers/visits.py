@@ -13,7 +13,7 @@ from app.property import visits
 
 
 router = APIRouter(
-    prefix="/visits",
+    prefix="/visit",
     tags=["visits"]
 )
 

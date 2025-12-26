@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -13,7 +13,12 @@ class VisitRequestCreate(BaseModel):
     
     @validator('preferred_date')
     def validate_future_date(cls, v):
-        if v < datetime.utcnow():
+        now = datetime.now(timezone.utc)
+        if v.tzinfo is None:
+            # If input is naive, assume UTC
+            v = v.replace(tzinfo=timezone.utc)
+        
+        if v < now:
             raise ValueError('Preferred date must be in the future')
         return v
     
@@ -27,11 +32,29 @@ class VisitRequestCreate(BaseModel):
 
 
 class VisitRequestResponse(BaseModel):
-    status: str
-    proposed_date: Optional[datetime] = None
-    proposed_time_start: Optional[str] = None
-    proposed_time_end: Optional[str] = None
+    """Agent's response when proposing a reschedule"""
+    proposed_date: datetime
+    proposed_time_start: str = Field(..., pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
+    proposed_time_end: str = Field(..., pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
     agent_note: Optional[str] = Field(None, max_length=500)
+    
+    @validator('proposed_date')
+    def validate_future_date(cls, v):
+        now = datetime.now(timezone.utc)
+        if v.tzinfo is None:
+            v = v.replace(tzinfo=timezone.utc)
+        
+        if v < now:
+            raise ValueError('Proposed date must be in the future')
+        return v
+    
+    @validator('proposed_time_end')
+    def validate_time_range(cls, v, values):
+        if 'proposed_time_start' in values:
+            start = values['proposed_time_start']
+            if v <= start:
+                raise ValueError('End time must be after start time')
+        return v
 
 
 class VisitRequestDecline(BaseModel):
