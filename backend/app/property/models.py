@@ -101,28 +101,22 @@ class VisitRequest(Base):
     property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
     buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    
-    # Request details
     visit_type = Column(String, nullable=False)  # physical or virtual
     status = Column(String, default=VisitStatus.PENDING.value, index=True)
-    
     # Buyer's preferred date/time
     preferred_date = Column(DateTime, nullable=False)
     preferred_time_start = Column(String, nullable=False)
     preferred_time_end = Column(String, nullable=False)
     buyer_note = Column(Text)
-    
     # Agent's proposed date/time 
     proposed_date = Column(DateTime)
     proposed_time_start = Column(String)
     proposed_time_end = Column(String)
     agent_note = Column(Text)
-    
     # Confirmed date/time
     confirmed_date = Column(DateTime)
     confirmed_time_start = Column(String)
     confirmed_time_end = Column(String)
-    
     # Decline reason
     decline_reason = Column(Text)
     

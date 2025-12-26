@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from app.property.models import VisitRequest, UserProperty, VisitStatus
@@ -28,7 +28,7 @@ def create_visit_request(db: Session, request: VisitRequestCreate, buyer_id: int
             detail="Only buyers can request property visits"
         )
     
-    # Check if property exists and is available
+    # Check if property exists and available
     property_obj = db.query(UserProperty).filter(UserProperty.id == request.property_id).first()
     if not property_obj:
         raise HTTPException(
@@ -126,7 +126,12 @@ def agent_propose_reschedule(
         )
     
     # Validate proposed date is in future
-    if response.proposed_date < datetime.utcnow():
+    now = datetime.now(timezone.utc)
+    proposed = response.proposed_date
+    if proposed.tzinfo is None:
+        proposed = proposed.replace(tzinfo=timezone.utc)
+    
+    if proposed < now:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Proposed date must be in the future"
@@ -188,12 +193,7 @@ def buyer_confirm_proposal(db: Session, visit_id: int, buyer_id: int):
     return build_visit_display(db, visit)
 
 
-def complete_visit(
-    db: Session,
-    visit_id: int,
-    user_id: int,
-    completion: VisitRequestComplete
-):
+def complete_visit(db: Session, visit_id: int, user_id: int, completion: VisitRequestComplete):
     """Mark visit as completed or no-show (agent or system)"""
     visit = db.query(VisitRequest).filter(VisitRequest.id == visit_id).first()
     
