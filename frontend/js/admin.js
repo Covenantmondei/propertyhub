@@ -103,6 +103,9 @@ function navigateToSection(sectionName) {
         case 'pending-agents':
             loadPendingAgents();
             break;
+        case 'kyc-verification':
+            loadPendingKYC();
+            break;
         case 'all-properties':
             loadAllProperties();
             break;
@@ -148,8 +151,15 @@ async function loadDashboardStats() {
         if (pendingAgentsBadge) {
             pendingAgentsBadge.textContent = stats.pending_agents || 0;
         }
+        
+        // Update pending KYC badge
+        const pendingKYCBadge = document.getElementById('pending-kyc-badge');
+        if (pendingKYCBadge) {
+            pendingKYCBadge.textContent = stats.pending_kyc || 0;
+        }
+        
         if (notificationBadge) {
-            const totalPending = (stats.pending_properties || 0) + (stats.pending_agents || 0);
+            const totalPending = (stats.pending_properties || 0) + (stats.pending_agents || 0) + (stats.pending_kyc || 0);
             notificationBadge.textContent = totalPending;
         }
 
@@ -791,4 +801,496 @@ async function logout() {
     setTimeout(() => {
         window.location.href = 'login.html';
     }, 1000);
+}
+
+// ============= KYC VERIFICATION FUNCTIONS =============
+
+let currentKYCAgent = null;
+
+async function loadPendingKYC() {
+    const container = document.getElementById('kyc-list');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading">Loading...</div>';
+
+    try {
+        const kycSubmissions = await window.apiCall('/admin/pending');
+        
+        if (kycSubmissions.length === 0) {
+            container.innerHTML = '<div class="empty-state">No pending KYC submissions</div>';
+            return;
+        }
+
+        container.innerHTML = kycSubmissions.map(kyc => {
+            const statusBadge = getKYCStatusBadge(kyc.kyc_status);
+            const hasDocuments = kyc.government_id_url && kyc.selfie_url;
+            
+            return `
+                <div class="approval-card">
+                    <div class="approval-card-header">
+                        <div>
+                            <h3 class="approval-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;margin-right:8px;">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                ${escapeHtml(kyc.first_name || '')} ${escapeHtml(kyc.last_name || '')}
+                            </h3>
+                            <p class="approval-meta">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                ${kyc.email}
+                                ${kyc.username ? `• <strong>@${kyc.username}</strong>` : ''}
+                            </p>
+                            <p class="approval-meta">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                Submitted: ${formatDate(kyc.kyc_submitted_at)} (${formatRelativeTime(kyc.kyc_submitted_at)})
+                            </p>
+                            ${kyc.phone_number ? `
+                                <p class="approval-meta">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                    </svg>
+                                    ${kyc.phone_number}
+                                </p>
+                            ` : ''}
+                            ${kyc.id_type && kyc.id_number ? `
+                                <p class="approval-meta">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                        <line x1="1" y1="10" x2="23" y2="10"/>
+                                    </svg>
+                                    ${kyc.id_type.replace('_', ' ').toUpperCase()}: ${kyc.id_number}
+                                </p>
+                            ` : ''}
+                            ${kyc.company ? `
+                                <p class="approval-meta">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                    </svg>
+                                    Company: ${escapeHtml(kyc.company)}
+                                </p>
+                            ` : ''}
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                            ${statusBadge}
+                            ${!hasDocuments ? '<span class="badge badge-pending" style="background: #f59e0b;">Missing Documents</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    ${kyc.completed_visits_count || kyc.declined_visits_count || kyc.no_show_count ? `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 1rem; padding: 1rem; background: var(--admin-muted-bg); border-radius: 0.5rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--admin-muted); text-transform: uppercase;">Completed Visits</div>
+                                <div style="font-size: 1.25rem; font-weight: 600; color: #10b981;">${kyc.completed_visits_count || 0}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--admin-muted); text-transform: uppercase;">Declined Visits</div>
+                                <div style="font-size: 1.25rem; font-weight: 600; color: #f59e0b;">${kyc.declined_visits_count || 0}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--admin-muted); text-transform: uppercase;">No Shows</div>
+                                <div style="font-size: 1.25rem; font-weight: 600; color: #ef4444;">${kyc.no_show_count || 0}</div>
+                            </div>
+                            ${kyc.rating ? `
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--admin-muted); text-transform: uppercase;">Rating</div>
+                                    <div style="font-size: 1.25rem; font-weight: 600; color: #3b82f6;">${kyc.rating.toFixed(1)} ⭐</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="approval-actions" style="margin-top: 1rem;">
+                        <button onclick="viewKYCDetails(${kyc.user_id})" class="btn-secondary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            View Full Details
+                        </button>
+                        ${hasDocuments ? `
+                            <button onclick="quickVerifyKYC(${kyc.user_id})" class="btn-success btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Verify KYC
+                            </button>
+                            <button onclick="quickRejectKYC(${kyc.user_id})" class="btn-danger btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Reject
+                            </button>
+                        ` : `
+                            <span style="color: var(--admin-muted); font-size: 0.875rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                Awaiting document upload
+                            </span>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load KYC submissions:', error);
+        container.innerHTML = '<div class="error-state">Failed to load KYC submissions<br><small>' + error.message + '</small></div>';
+    }
+}
+
+function getKYCStatusBadge(status) {
+    const statusMap = {
+        'pending_review': { text: 'PENDING REVIEW', class: 'badge-pending' },
+        'verified': { text: 'VERIFIED', class: 'badge-approved' },
+        'rejected': { text: 'REJECTED', class: 'badge-rejected' },
+        'not_submitted': { text: 'NOT SUBMITTED', class: 'badge-info' }
+    };
+    
+    const statusInfo = statusMap[status] || { text: status.toUpperCase(), class: 'badge-info' };
+    return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
+}
+
+async function viewKYCDetails(agentId) {
+    try {
+        const kyc = await window.apiCall(`/admin/agent/${agentId}`);
+        currentKYCAgent = kyc;
+        
+        const modal = document.getElementById('kyc-details-modal');
+        const content = document.getElementById('kyc-details-content');
+        
+        const hasDocuments = kyc.government_id_url && kyc.selfie_url;
+        
+        content.innerHTML = `
+            <div class="kyc-details-grid">
+                <div class="kyc-section">
+                    <h4 class="kyc-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Personal Information
+                    </h4>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">${escapeHtml(kyc.first_name)} ${escapeHtml(kyc.last_name)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">${escapeHtml(kyc.email)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Username</span>
+                            <span class="info-value">${escapeHtml(kyc.username || 'N/A')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone Number</span>
+                            <span class="info-value">${escapeHtml(kyc.phone_number || 'N/A')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Company</span>
+                            <span class="info-value">${escapeHtml(kyc.company || 'N/A')}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kyc-section">
+                    <h4 class="kyc-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Identification Details
+                    </h4>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">ID Type</span>
+                            <span class="info-value">${kyc.id_type ? kyc.id_type.replace('_', ' ').toUpperCase() : 'N/A'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">ID Number</span>
+                            <span class="info-value">${escapeHtml(kyc.id_number || 'N/A')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">KYC Status</span>
+                            <span class="info-value">${getKYCStatusBadge(kyc.kyc_status)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Submitted At</span>
+                            <span class="info-value">${kyc.kyc_submitted_at ? formatDateTime(kyc.kyc_submitted_at) : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${hasDocuments ? `
+                    <div class="kyc-section">
+                        <h4 class="kyc-section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Uploaded Documents
+                        </h4>
+                        <div class="documents-grid">
+                            <div class="document-card">
+                                <div class="document-label">Government ID</div>
+                                <img src="${kyc.government_id_url}" alt="Government ID" class="document-image" onclick="openImageInNewTab('${kyc.government_id_url}')">
+                                <button onclick="openImageInNewTab('${kyc.government_id_url}')" class="btn-secondary btn-xs" style="margin-top: 0.5rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                        <polyline points="15 3 21 3 21 9"/>
+                                        <line x1="10" y1="14" x2="21" y2="3"/>
+                                    </svg>
+                                    View Full Size
+                                </button>
+                            </div>
+                            <div class="document-card">
+                                <div class="document-label">Selfie with ID</div>
+                                <img src="${kyc.selfie_url}" alt="Selfie" class="document-image" onclick="openImageInNewTab('${kyc.selfie_url}')">
+                                <button onclick="openImageInNewTab('${kyc.selfie_url}')" class="btn-secondary btn-xs" style="margin-top: 0.5rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                        <polyline points="15 3 21 3 21 9"/>
+                                        <line x1="10" y1="14" x2="21" y2="3"/>
+                                    </svg>
+                                    View Full Size
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="kyc-section">
+                        <div class="alert alert-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            No documents uploaded yet. The agent needs to upload their government ID and selfie.
+                        </div>
+                    </div>
+                `}
+                
+                <div class="kyc-section">
+                    <h4 class="kyc-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Agent Statistics
+                    </h4>
+                    <div class="stats-grid-small">
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #10b981;">${kyc.completed_visits_count || 0}</div>
+                            <div class="stat-label">Completed Visits</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #f59e0b;">${kyc.declined_visits_count || 0}</div>
+                            <div class="stat-label">Declined Visits</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: #ef4444;">${kyc.no_show_count || 0}</div>
+                            <div class="stat-label">No Shows</div>
+                        </div>
+                        ${kyc.rating ? `
+                            <div class="stat-item">
+                                <div class="stat-value" style="color: #3b82f6;">${kyc.rating.toFixed(1)} ⭐</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                        ` : ''}
+                        ${kyc.ranking_score ? `
+                            <div class="stat-item">
+                                <div class="stat-value" style="color: #8b5cf6;">${kyc.ranking_score.toFixed(0)}</div>
+                                <div class="stat-label">Ranking Score</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${kyc.kyc_rejection_reason ? `
+                    <div class="kyc-section">
+                        <div class="alert alert-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            <div>
+                                <strong>Previous Rejection Reason:</strong><br>
+                                ${escapeHtml(kyc.kyc_rejection_reason)}
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        // Show/hide action buttons based on status
+        const verifyBtn = document.getElementById('kyc-verify-btn');
+        const rejectBtn = document.getElementById('kyc-reject-btn');
+        
+        if (kyc.kyc_status === 'verified') {
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Already Verified';
+            rejectBtn.style.display = 'none';
+        } else if (!hasDocuments) {
+            verifyBtn.disabled = true;
+            rejectBtn.disabled = true;
+            verifyBtn.innerHTML = 'Documents Required';
+        } else {
+            verifyBtn.disabled = false;
+            rejectBtn.disabled = false;
+            verifyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Verify KYC';
+            rejectBtn.style.display = '';
+        }
+        
+        modal.classList.add('active');
+    } catch (error) {
+        console.error('Failed to load KYC details:', error);
+        showNotification('Failed to load KYC details', 'error');
+    }
+}
+
+function closeKYCDetailsModal() {
+    const modal = document.getElementById('kyc-details-modal');
+    modal.classList.remove('active');
+    currentKYCAgent = null;
+}
+
+function openImageInNewTab(url) {
+    window.open(url, '_blank');
+}
+
+async function verifyKYC() {
+    if (!currentKYCAgent) return;
+    
+    const confirmed = await showConfirm(
+        `Are you sure you want to verify KYC for ${currentKYCAgent.first_name} ${currentKYCAgent.last_name}?`,
+        { title: 'Verify KYC', confirmText: 'Verify', type: 'success' }
+    );
+    if (!confirmed) return;
+    
+    try {
+        await window.apiCall(`/admin/agent/${currentKYCAgent.user_id}/verify`, {
+            method: 'POST',
+            body: JSON.stringify({
+                status: 'verified'
+            })
+        });
+        
+        showNotification('KYC verified successfully', 'success');
+        closeKYCDetailsModal();
+        await loadPendingKYC();
+        await loadDashboardStats();
+    } catch (error) {
+        console.error('Failed to verify KYC:', error);
+        showNotification(error.message || 'Failed to verify KYC', 'error');
+    }
+}
+
+function rejectKYC() {
+    if (!currentKYCAgent) return;
+    
+    closeKYCDetailsModal();
+    openKYCRejectionModal();
+}
+
+function openKYCRejectionModal() {
+    const modal = document.getElementById('kyc-rejection-modal');
+    modal.classList.add('active');
+    document.getElementById('kyc-rejection-reason').value = '';
+}
+
+function closeKYCRejectionModal() {
+    const modal = document.getElementById('kyc-rejection-modal');
+    modal.classList.remove('active');
+}
+
+async function submitKYCRejection() {
+    if (!currentKYCAgent) return;
+    
+    const reason = document.getElementById('kyc-rejection-reason').value.trim();
+    if (!reason) {
+        showNotification('Please enter a reason for rejection', 'error');
+        return;
+    }
+    
+    try {
+        await window.apiCall(`/admin/agent/${currentKYCAgent.user_id}/verify`, {
+            method: 'POST',
+            body: JSON.stringify({
+                status: 'rejected',
+                rejection_reason: reason
+            })
+        });
+        
+        showNotification('KYC rejected successfully', 'success');
+        closeKYCRejectionModal();
+        currentKYCAgent = null;
+        await loadPendingKYC();
+        await loadDashboardStats();
+    } catch (error) {
+        console.error('Failed to reject KYC:', error);
+        showNotification(error.message || 'Failed to reject KYC', 'error');
+    }
+}
+
+async function quickVerifyKYC(agentId) {
+    const confirmed = await showConfirm(
+        'Are you sure you want to verify this KYC submission?',
+        { title: 'Verify KYC', confirmText: 'Verify', type: 'success' }
+    );
+    if (!confirmed) return;
+    
+    try {
+        await window.apiCall(`/admin/agent/${agentId}/verify`, {
+            method: 'POST',
+            body: JSON.stringify({
+                status: 'verified'
+            })
+        });
+        
+        showNotification('KYC verified successfully', 'success');
+        await loadPendingKYC();
+        await loadDashboardStats();
+    } catch (error) {
+        console.error('Failed to verify KYC:', error);
+        showNotification(error.message || 'Failed to verify KYC', 'error');
+    }
+}
+
+async function quickRejectKYC(agentId) {
+    const reason = await showPrompt(
+        'Enter reason for KYC rejection:',
+        { title: 'Reject KYC', inputType: 'textarea', placeholder: 'Provide detailed reason for rejection...' }
+    );
+    if (!reason) return;
+    
+    try {
+        await window.apiCall(`/admin/agent/${agentId}/verify`, {
+            method: 'POST',
+            body: JSON.stringify({
+                status: 'rejected',
+                rejection_reason: reason
+            })
+        });
+        
+        showNotification('KYC rejected successfully', 'success');
+        await loadPendingKYC();
+        await loadDashboardStats();
+    } catch (error) {
+        console.error('Failed to reject KYC:', error);
+        showNotification(error.message || 'Failed to reject KYC', 'error');
+    }
 }

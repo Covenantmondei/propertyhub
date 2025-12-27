@@ -36,6 +36,11 @@
                 <span>Pending Agents</span>
                 <span class="badge-count" id="pending-agents-badge">0</span>
             </a>
+            <a href="#" class="sidebar-link" data-section="kyc-verification">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                <span>KYC Verification</span>
+                <span class="badge-count" id="pending-kyc-badge">0</span>
+            </a>
             <a href="#" class="sidebar-link" data-section="all-properties">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span>All Properties</span>
@@ -239,6 +244,21 @@
                 <div id="pending-agents-list" class="list-container"></div>
             </section>
 
+            <!-- KYC Verification Section -->
+            <section class="content-section" id="kyc-verification-section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">KYC Verification</h1>
+                        <p class="section-subtitle">Review and verify agent KYC submissions</p>
+                    </div>
+                    <button onclick="loadPendingKYC()" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Refresh
+                    </button>
+                </div>
+                <div id="kyc-list" class="list-container"></div>
+            </section>
+
             <!-- All Properties Section -->
             <section class="content-section" id="all-properties-section">
                 <div class="section-header">
@@ -311,6 +331,55 @@
     </main>
 
     <!-- Modals -->
+    <!-- KYC Details Modal -->
+    <div id="kyc-details-modal" class="modal">
+        <div class="modal-overlay" onclick="closeKYCDetailsModal()"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">KYC Verification Details</h3>
+                <button class="modal-close" onclick="closeKYCDetailsModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="kyc-details-content">
+                <!-- KYC details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeKYCDetailsModal()" class="btn-secondary">Close</button>
+                <button onclick="rejectKYC()" class="btn-danger" id="kyc-reject-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Reject KYC
+                </button>
+                <button onclick="verifyKYC()" class="btn-success" id="kyc-verify-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Verify KYC
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KYC Rejection Modal -->
+    <div id="kyc-rejection-modal" class="modal">
+        <div class="modal-overlay" onclick="closeKYCRejectionModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Reject KYC Submission</h3>
+                <button class="modal-close" onclick="closeKYCRejectionModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label">Reason for rejection:</label>
+                <textarea id="kyc-rejection-reason" class="form-textarea" placeholder="Enter detailed reason for rejection..." rows="4" required></textarea>
+                <small style="color: var(--admin-muted); font-size: 0.875rem;">This will be sent to the agent.</small>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeKYCRejectionModal()" class="btn-secondary">Cancel</button>
+                <button onclick="submitKYCRejection()" class="btn-danger">Submit Rejection</button>
+            </div>
+        </div>
+    </div>
+
     <div id="rejection-modal" class="modal">
         <div class="modal-overlay" onclick="closeRejectionModal()"></div>
         <div class="modal-content">
