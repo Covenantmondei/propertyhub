@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -17,6 +17,14 @@ class ApprovalStatus(str, enum.Enum):
     REJECTED = "rejected"
 
 
+class KYCStatus(str, enum.Enum):
+    UNVERIFIED = "unverified"
+    PENDING_REVIEW = "pending_review"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+    SUSPENDED = "suspended"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -28,9 +36,23 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     is_verified = Column(Boolean, default=False)
     role = Column(String, default=UserRole.BUYER.value)
-    is_approved = Column(Boolean, default=True)  # Auto-approved for buyers, needs approval for agents
+    is_approved = Column(Boolean, default=True)
     approval_status = Column(String, default=ApprovalStatus.APPROVED.value)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Anti-abuse tracking
+    no_show_count = Column(Integer, default=0)
+    declined_visits_count = Column(Integer, default=0)
+    completed_visits_count = Column(Integer, default=0)
+    is_flagged = Column(Boolean, default=False)
+    flag_reason = Column(Text)
+    last_flag_date = Column(DateTime)
+    
+    # KYC Status (for agents)
+    kyc_status = Column(String, default=KYCStatus.UNVERIFIED.value)
+    kyc_submitted_at = Column(DateTime)
+    kyc_verified_at = Column(DateTime)
+    kyc_rejection_reason = Column(Text)
     
     # Relationships
     agent_profile = relationship("AgentProfile", back_populates="user", uselist=False)
@@ -49,8 +71,21 @@ class AgentProfile(Base):
     bio = Column(Text)
     profile_picture = Column(String)  # Cloudinary URL
     company = Column(String)
-    license_number = Column(String)
     years_experience = Column(Integer)
+    
+    # KYC Documents
+    government_id_url = Column(String)  # Cloudinary URL
+    government_id_public_id = Column(String)
+    selfie_url = Column(String)
+    selfie_public_id = Column(String)
+    id_type = Column(String)
+    id_number = Column(String)
+    
+    # Agent rating/ranking
+    rating = Column(Float, default=5.0)
+    total_ratings = Column(Integer, default=0)
+    ranking_score = Column(Float, default=100.0)  # Starts at 100, decreases with bad behavior
+    
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships

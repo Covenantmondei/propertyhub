@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import user, property, admin, chat, visits
+from app.routers import user, property, admin, chat, visits, kyc
 from app.auth.models import User, AgentProfile, ActivityLog
-from app.property.models import UserProperty, PropertyImage, Favorite
+from app.property.models import UserProperty, PropertyImage, Favorite, VisitRequest, PropertyReservation
 from app.chat.models import Conversation, Message, Notification
 from fastapi.middleware.cors import CORSMiddleware
-
 
 
 Base.metadata.create_all(bind=engine)
@@ -37,6 +36,7 @@ app.include_router(property.router)
 app.include_router(admin.router)
 app.include_router(chat.router)
 app.include_router(visits.router)
+app.include_router(kyc.router)
 
 @app.get("/")
 def read_root():

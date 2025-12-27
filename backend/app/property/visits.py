@@ -6,10 +6,10 @@ from typing import List, Optional
 
 from app.property.models import VisitRequest, UserProperty, VisitStatus
 from app.auth.models import User
-from app.property.visit_schemas import (
-    VisitRequestCreate, VisitRequestResponse, VisitRequestDecline,
-    VisitRequestComplete, VisitRequestDisplay
-)
+from app.property.visit_schemas import VisitRequestCreate, VisitRequestResponse, VisitRequestDecline, VisitRequestComplete, VisitRequestDisplay
+from app.auth.kyc import check_agent_eligibility, check_buyer_active_requests, update_agent_ranking, flag_buyer_for_abuse, check_buyer_no_shows
+
+
 
 
 def create_visit_request(db: Session, request: VisitRequestCreate, buyer_id: int):
@@ -59,6 +59,21 @@ def create_visit_request(db: Session, request: VisitRequestCreate, buyer_id: int
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You already have a pending visit request for this property"
+        )
+    
+    # Check if buyer has too many active requests
+    if check_buyer_active_requests(db, buyer_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"You have reached the maximum of active visit requests"
+        )
+    
+    # Check if buyer is flagged
+    buyer = db.query(User).filter(User.id == buyer_id).first()
+    if buyer.is_flagged:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Your account has been flagged: {buyer.flag_reason}. Please contact support."
         )
     
     # Create visit request
@@ -164,6 +179,13 @@ def agent_decline(db: Session, visit_id: int, agent_id: int, decline: VisitReque
     visit.decline_reason = decline.decline_reason
     visit.updated_at = datetime.utcnow()
     
+    # Track decline
+    agent = db.query(User).filter(User.id == agent_id).first()
+    agent.declined_visits_count += 1
+    
+    # Update ranking
+    warnings = update_agent_ranking(db, agent_id, "decline_visit")
+    
     db.commit()
     db.refresh(visit)
     
@@ -203,7 +225,6 @@ def complete_visit(db: Session, visit_id: int, user_id: int, completion: VisitRe
             detail="Visit request not found"
         )
     
-    # Verify user is the agent
     if visit.agent_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -221,48 +242,60 @@ def complete_visit(db: Session, visit_id: int, user_id: int, completion: VisitRe
     visit.completed_at = datetime.utcnow()
     visit.updated_at = datetime.utcnow()
     
+    # Update statistics
+    buyer = db.query(User).filter(User.id == visit.buyer_id).first()
+    agent = db.query(User).filter(User.id == visit.agent_id).first()
+    
+    if completion.status == "completed":
+        # Both parties showed up
+        buyer.completed_visits_count += 1
+        agent.completed_visits_count += 1
+        update_agent_ranking(db, agent.id, "complete_visit")
+        
+    elif completion.status == "no_show_buyer":
+        # Buyer didn't show up
+        buyer.no_show_count += 1
+        check_buyer_no_shows(db, buyer.id)  # Flag if threshold exceeded
+        
+    elif completion.status == "no_show_agent":
+        # Agent didn't show up
+        agent.no_show_count += 1
+        warnings = update_agent_ranking(db, agent.id, "no_show")
+    
     db.commit()
     db.refresh(visit)
     
     return build_visit_display(db, visit)
 
 
-def cancel_visit(db: Session, visit_id: int, user_id: int):
-    """Buyer or agent cancels the visit"""
-    visit = db.query(VisitRequest).filter(VisitRequest.id == visit_id).first()
+# Add new function to mark buyer as interested
+def mark_buyer_interested(db: Session, visit_id: int, agent_id: int):
+    """Agent marks buyer as interested after completed visit"""
+    visit = get_visit_and_verify_agent(db, visit_id, agent_id)
     
-    if not visit:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Visit request not found"
-        )
-    
-    # Verify user is buyer or agent
-    if visit.buyer_id != user_id and visit.agent_id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the buyer or agent can cancel this visit"
-        )
-    
-    if visit.status in [
-        VisitStatus.COMPLETED.value,
-        VisitStatus.CANCELLED.value,
-        VisitStatus.NO_SHOW_BUYER.value,
-        VisitStatus.NO_SHOW_AGENT.value,
-        VisitStatus.DECLINED.value
-    ]:
+    if visit.status != VisitStatus.COMPLETED.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot cancel visit with status: {visit.status}"
+            detail="Can only mark interest for completed visits"
         )
     
-    visit.status = VisitStatus.CANCELLED.value
-    visit.updated_at = datetime.utcnow()
+    if visit.is_buyer_interested:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Buyer already marked as interested"
+        )
+    
+    visit.is_buyer_interested = True
+    visit.marked_interested_at = datetime.utcnow()
     
     db.commit()
     db.refresh(visit)
     
-    return build_visit_display(db, visit)
+    return {
+        "message": "Buyer marked as interested",
+        "visit_id": visit.id,
+        "can_create_reservation": True
+    }
 
 
 def get_buyer_visits(db: Session, buyer_id: int, skip: int = 0, limit: int = 20):

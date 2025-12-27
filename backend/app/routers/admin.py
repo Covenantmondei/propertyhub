@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -8,10 +8,10 @@ from app.auth.models import User
 from app.auth.schemas import UserDisplay
 from app.property.schemas import PropertyDisplay
 from app.admin import admin
-from app.admin.schemas import (
-    AgentRejectionRequest, PropertyRejectionRequest, 
-    UserSuspensionRequest, ActivityLogDisplay, DashboardStats
-)
+from app.admin.schemas import AgentRejectionRequest, PropertyRejectionRequest, UserSuspensionRequest, ActivityLogDisplay, DashboardStats
+from app.auth.kyc_schemas import KYCSubmission, KYCStatusUpdate, KYCDisplay, AgentWarning
+from app.auth import kyc
+
 
 
 router = APIRouter(
@@ -101,3 +101,65 @@ def unsuspend_user(
     current_user: User = Depends(verify_admin)
 ):
     return admin.unsuspend_user(db, user_id, current_user.id)
+
+
+# KYC endpoints
+@router.get("/pending", response_model=List[KYCDisplay])
+def get_pending_kyc_submissions(
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Admin: Get all pending KYC submissions"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can view pending KYC submissions"
+        )
+    
+    return kyc.get_pending_kyc(db, skip, limit)
+
+
+@router.get("/agent/{agent_id}", response_model=KYCDisplay)
+def get_agent_kyc_details(agent_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Admin: Get specific agent's KYC details"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can view agent KYC details"
+        )
+    
+    return kyc.get_agent_kyc(db, agent_id)
+
+
+@router.post("/agent/{agent_id}/verify", response_model=KYCDisplay)
+def verify_agent_kyc(
+    agent_id: int,
+    update: KYCStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Admin: Verify or reject agent KYC"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can verify KYC"
+        )
+    
+    return kyc.admin_update_kyc_status(db, agent_id, current_user.id, update)
+
+
+@router.get("/agent/{agent_id}/warnings", response_model=List[AgentWarning])
+def get_agent_warnings(agent_id: int, db: Session = Depends(get_db),
+current_user: User = Depends(get_current_user)):
+    """Admin: Get agent warnings based on behavior"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can view agent warnings"
+        )
+    
+    # Get warnings from ranking update (without actually updating)
+    warnings = kyc.update_agent_ranking(db, agent_id, "check_only")
+    return warnings if warnings else []

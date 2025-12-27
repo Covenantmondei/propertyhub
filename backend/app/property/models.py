@@ -64,6 +64,7 @@ class UserProperty(Base):
     images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan")
     favorites = relationship("Favorite", back_populates="property", cascade="all, delete-orphan")
     visit_requests = relationship("VisitRequest", back_populates="property", cascade="all, delete-orphan")
+    reservations = relationship("PropertyReservation", back_populates="property", cascade="all, delete-orphan")
 
 
 class PropertyImage(Base):
@@ -124,8 +125,46 @@ class VisitRequest(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     completed_at = Column(DateTime)
+    # Interest tracking
+    is_buyer_interested = Column(Boolean, default=False)
+    marked_interested_at = Column(DateTime)
+
     
     # Relationships
     property = relationship("UserProperty", back_populates="visit_requests")
     buyer = relationship("User", foreign_keys=[buyer_id], backref="buyer_visits")
     agent = relationship("User", foreign_keys=[agent_id], backref="agent_visits")
+    reservation = relationship("PropertyReservation", back_populates="visit_request", uselist=False)
+
+
+class PropertyReservation(Base):
+    __tablename__ = "property_reservations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    visit_request_id = Column(Integer, ForeignKey("visit_requests.id"))
+    
+    # Reservation details
+    status = Column(String, default="pending")  # pending, confirmed, cancelled, expired
+    reservation_date = Column(DateTime, default=datetime.utcnow)
+    expiry_date = Column(DateTime)  # Reservation expires after X days
+    
+    # deposit_amount = Column(Float)
+    # deposit_paid = Column(Boolean, default=False)
+    
+    # Notes
+    agent_note = Column(Text)
+    buyer_note = Column(Text)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_buyer_interested = Column(Boolean, default=False)
+    marked_interested_at = Column(DateTime)
+    
+    # Relationships
+    property = relationship("UserProperty", back_populates="reservations")
+    buyer = relationship("User", foreign_keys=[buyer_id], backref="buyer_reservations")
+    agent = relationship("User", foreign_keys=[agent_id], backref="agent_reservations")
+    visit_request = relationship("VisitRequest", back_populates="reservation")
