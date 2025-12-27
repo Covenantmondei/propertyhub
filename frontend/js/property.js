@@ -280,7 +280,161 @@ function scheduleVisit() {
         return;
     }
 
-    showNotification('Visit scheduling will be implemented soon', 'info');
+    const user = getUser();
+    if (user.role !== 'buyer') {
+        showNotification('Only buyers can schedule property visits', 'info');
+        return;
+    }
+
+    // Show schedule visit modal
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'schedule-visit-modal';
+    modal.innerHTML = `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-alt"></i> Schedule a Visit</h2>
+                <button class="modal-close" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="schedule-visit-form" onsubmit="submitVisitRequest(event)">
+                    <div class="form-group">
+                        <label for="visit-type">Visit Type <span class="required">*</span></label>
+                        <select id="visit-type" required class="form-input">
+                            <option value="">Select visit type</option>
+                            <option value="physical">Physical Visit - In-person property viewing</option>
+                            <option value="virtual">Virtual Visit - Online video tour</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preferred-date">Preferred Date <span class="required">*</span></label>
+                        <input type="date" id="preferred-date" required class="form-input"
+                               min="${new Date(Date.now() + 86400000).toISOString().split('T')[0]}">
+                        <small class="form-help">Select your preferred date for the visit</small>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-time">Start Time <span class="required">*</span></label>
+                            <input type="time" id="start-time" required class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="end-time">End Time <span class="required">*</span></label>
+                            <input type="time" id="end-time" required class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="buyer-note">Additional Notes (Optional)</label>
+                        <textarea id="buyer-note" rows="4" maxlength="500" class="form-input"
+                                  placeholder="Add any special requests or questions..."></textarea>
+                        <small class="form-help">Maximum 500 characters</small>
+                    </div>
+                    
+                    <div class="visit-info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>What happens next?</strong>
+                            <p>The property agent will review your request and either confirm your preferred time or propose an alternative. You'll be notified once they respond.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check"></i> Request Visit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Focus on visit type after a short delay
+    setTimeout(() => {
+        document.getElementById('visit-type').focus();
+    }, 100);
+}
+
+async function submitVisitRequest(event) {
+    event.preventDefault();
+    
+    const visitType = document.getElementById('visit-type').value;
+    const preferredDate = document.getElementById('preferred-date').value;
+    const startTime = document.getElementById('start-time').value;
+    const endTime = document.getElementById('end-time').value;
+    const buyerNote = document.getElementById('buyer-note').value.trim();
+    
+    // Validate time range
+    if (startTime >= endTime) {
+        showNotification('End time must be after start time', 'error');
+        return;
+    }
+    
+    // Validate date is in future
+    const selectedDate = new Date(preferredDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        showNotification('Please select a future date', 'error');
+        return;
+    }
+    
+    try {
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        
+        const response = await apiCall('/visit/request', {
+            method: 'POST',
+            body: JSON.stringify({
+                property_id: parseInt(propertyId),
+                visit_type: visitType,
+                preferred_date: preferredDate,
+                preferred_time_start: startTime,
+                preferred_time_end: endTime,
+                buyer_note: buyerNote || null
+            })
+        });
+        
+        showNotification('Visit request submitted successfully!', 'success');
+        
+        // Close modal
+        document.getElementById('schedule-visit-modal').remove();
+        
+        // Show success message with option to view visits
+        setTimeout(() => {
+            const viewVisits = confirm('Your visit request has been sent to the agent. Would you like to view your visits?');
+            if (viewVisits) {
+                window.location.href = 'visits.html';
+            }
+        }, 500);
+        
+    } catch (error) {
+        console.error('Failed to submit visit request:', error);
+        
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-calendar-check"></i> Request Visit';
+        
+        if (error.message.includes('already have a pending visit')) {
+            showNotification('You already have a pending visit request for this property', 'info');
+            setTimeout(() => {
+                window.location.href = 'visits.html';
+            }, 2000);
+        } else {
+            showNotification(error.message || 'Failed to submit visit request', 'error');
+        }
+    }
 }
 
 async function checkIfFavorite() {

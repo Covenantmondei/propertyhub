@@ -56,6 +56,16 @@ async function loadDashboardStats() {
         document.getElementById('approved-properties').textContent = approved;
         document.getElementById('pending-properties').textContent = pending;
         
+        // Load pending visits count
+        try {
+            const visits = await apiCall('/visit/agent-requests');
+            const pendingVisits = visits.filter(v => v.status === 'pending' || v.status === 'proposed_reschedule').length;
+            document.getElementById('pending-visits').textContent = pendingVisits;
+        } catch (error) {
+            console.error('Failed to load visits:', error);
+            document.getElementById('pending-visits').textContent = '0';
+        }
+        
         // TODO: Load messages count when chat API is integrated
         document.getElementById('total-messages').textContent = '0';
         
@@ -66,6 +76,7 @@ async function loadDashboardStats() {
         document.getElementById('approved-properties').textContent = '0';
         document.getElementById('pending-properties').textContent = '0';
         document.getElementById('total-messages').textContent = '0';
+        document.getElementById('pending-visits').textContent = '0';
     }
 }
 
