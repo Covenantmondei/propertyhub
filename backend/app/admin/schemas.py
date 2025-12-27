@@ -48,6 +48,7 @@ class DashboardStats(BaseModel):
     pending_approvals: int
     pending_agents: int
     pending_properties: int
+    pending_kyc: int
     approved_agents: int
     approved_properties: int
     users: dict

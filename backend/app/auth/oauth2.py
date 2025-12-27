@@ -16,7 +16,7 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl='token')
  
 SECRET_KEY = os.environ.get('SECRET_KEY')
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
 REFRESH_TOKEN_EXPIRE_DAYS = 14
 
  

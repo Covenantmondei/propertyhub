@@ -237,6 +237,11 @@ def get_dashboard_stats(db: Session):
         UserProperty.approval_status == ApprovalStatus.APPROVED.value
     ).scalar()
     
+    # Pending KYC submissions
+    pending_kyc = db.query(func.count(User.id)).filter(
+        and_(User.role == UserRole.AGENT.value, User.kyc_status == "pending_review")
+    ).scalar()
+    
     # Recent activity (last 7 days)
     seven_days_ago = datetime.utcnow() - timedelta(days=7)
     recent_registrations = db.query(func.count(User.id)).filter(
@@ -247,7 +252,7 @@ def get_dashboard_stats(db: Session):
     ).scalar()
     
     # Calculate total pending approvals
-    total_pending = (pending_agents or 0) + (pending_properties or 0)
+    total_pending = (pending_agents or 0) + (pending_properties or 0) + (pending_kyc or 0)
     
     return {
         "total_users": total_users or 0,
@@ -256,6 +261,7 @@ def get_dashboard_stats(db: Session):
         "pending_approvals": total_pending,
         "pending_agents": pending_agents or 0,
         "pending_properties": pending_properties or 0,
+        "pending_kyc": pending_kyc or 0,
         "approved_agents": approved_agents or 0,
         "approved_properties": approved_properties or 0,
         "users": {
@@ -368,3 +374,14 @@ def unsuspend_user(db: Session, user_id: int, admin_id: int):
         "message": "User unsuspended successfully",
         "user_id": user_id
     }
+
+def get_pending_kyc(db: Session, skip: int = 0, limit: int = 20):
+    """Get all pending KYC submissions"""
+    agents = db.query(User).filter(
+        and_(
+            User.role == UserRole.AGENT.value,
+            User.kyc_status == "pending_review"
+        )
+    ).offset(skip).limit(limit).all()
+    
+    return agents
