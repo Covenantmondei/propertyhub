@@ -48,10 +48,20 @@ async def create_user(db: Session, request: UserBase):
             new_user.approval_status = "approved"
         
         db.add(new_user)
+        db.flush()
+        
+        try:
+            await send_verification_email(new_user.email, new_user.id)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to send verification email. Please try again later or contact support. Error: {str(e)}"
+            )
+        
+        # Email sent successfully, save user
         db.commit()
         db.refresh(new_user)
-
-        await send_verification_email(new_user.email, new_user.id)
 
         return new_user
     
