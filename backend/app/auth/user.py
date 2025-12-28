@@ -166,11 +166,117 @@ async def send_verification_email(email: str, user_id: int):
     link = os.environ.get("FRONTEND_URL")
     verification_link = f"{link}/verify-email.html?token={token}"
 
+    body = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email - PropertyHub</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6;">
+            <tr>
+                <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <!-- Header -->
+                        <tr>
+                            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0;">
+                                <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">
+                                    🏠 PropertyHub
+                                </h1>
+                                <p style="margin: 10px 0 0; color: #e0e7ff; font-size: 16px;">
+                                    Welcome to Your Property Journey
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 40px;">
+                                <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">
+                                    Verify Your Email Address
+                                </h2>
+                                
+                                <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                    Thank you for signing up with PropertyHub! We're excited to have you join our community of property buyers and agents.
+                                </p>
+                                
+                                <p style="margin: 0 0 30px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                    To get started, please verify your email address by clicking the button below:
+                                </p>
+                                
+                                <!-- Button -->
+                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td align="center" style="padding: 0 0 30px;">
+                                            <a href="{verification_link}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
+                                                Verify Email Address
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- Alternative Link -->
+                                <div style="background-color: #f9fafb; border-left: 4px solid #667eea; padding: 16px; border-radius: 4px; margin-bottom: 30px;">
+                                    <p style="margin: 0 0 10px; color: #374151; font-size: 14px; font-weight: 600;">
+                                        Button not working?
+                                    </p>
+                                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                                        Copy and paste this link into your browser:
+                                    </p>
+                                    <p style="margin: 10px 0 0; word-break: break-all;">
+                                        <a href="{verification_link}" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                                            {verification_link}
+                                        </a>
+                                    </p>
+                                </div>
+                                
+                                <!-- Info Box -->
+                                <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 4px; margin-bottom: 20px;">
+                                    <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
+                                        <strong>⏰ This verification link will expire in 24 hours.</strong> Please verify your email as soon as possible.
+                                    </p>
+                                </div>
+                                
+                                <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                    If you didn't create an account with PropertyHub, you can safely ignore this email.
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer -->
+                        <tr>
+                            <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 16px 16px; border-top: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px; text-align: center;">
+                                    Questions? Contact us at 
+                                    <a href="mailto:support@propertyhub.com" style="color: #667eea; text-decoration: none;">
+                                        support@propertyhub.com
+                                    </a>
+                                </p>
+                                <p style="margin: 0; color: #9ca3af; font-size: 12px; text-align: center;">
+                                    © 2025 PropertyHub. All rights reserved.
+                                </p>
+                                <p style="margin: 10px 0 0; text-align: center;">
+                                    <a href="{link}" style="color: #667eea; text-decoration: none; font-size: 12px; margin: 0 10px;">Home</a>
+                                    <a href="{link}/properties.html" style="color: #667eea; text-decoration: none; font-size: 12px; margin: 0 10px;">Properties</a>
+                                    <a href="{link}/contact.html" style="color: #667eea; text-decoration: none; font-size: 12px; margin: 0 10px;">Contact</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+
     message = MessageSchema(
-        subject="verify your email",
+        subject="🏠 Verify Your PropertyHub Account",
         recipients=[email],
-        body=f"Click on the link to verify your email: {verification_link}",
-        subtype="plain"
+        body=body,
+        subtype="html"
     )
 
     fm = FastMail(conf)
