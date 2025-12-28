@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/agent-dashboard.css">
     <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .notification-badge {
             position: absolute;
@@ -101,6 +102,9 @@
                     </button>
                 </div>
             </div>
+
+            <!-- KYC Status Alert -->
+            <div id="kycStatusAlert" style="display: none;"></div>
 
             <!-- Stats Cards -->
             <div class="stats-grid">
@@ -197,6 +201,14 @@
                         </div>
                         <h3>Manage Visits</h3>
                         <p>View and respond to visit requests</p>
+                    </a>
+
+                    <a href="kyc-verification.html" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <h3>KYC Verification</h3>
+                        <p>Verify your identity to unlock all features</p>
                     </a>
                 </div>
             </div>

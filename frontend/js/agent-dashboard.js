@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup messages link
     setupMessagesLink();
+    
+    // Load KYC status
+    loadKYCStatus();
 });
 
 async function initDashboard() {
@@ -284,4 +287,143 @@ function scrollToProperties() {
     if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
     }
+}
+// KYC Status and Eligibility
+async function loadKYCStatus() {
+    try {
+        // Get KYC status
+        const kycStatus = await apiCall('/kyc/status');
+        
+        // Get eligibility
+        const eligibility = await apiCall('/kyc/eligibility');
+        
+        displayKYCAlert(kycStatus, eligibility);
+        
+    } catch (error) {
+        console.error('Failed to load KYC status:', error);
+    }
+}
+
+function displayKYCAlert(kycStatus, eligibility) {
+    const alertContainer = document.getElementById('kycStatusAlert');
+    
+    // If verified and eligible, don't show alert
+    if (kycStatus.kyc_status === 'verified' && eligibility.eligible) {
+        alertContainer.style.display = 'none';
+        return;
+    }
+    
+    let alertHTML = '';
+    let alertClass = '';
+    
+    if (kycStatus.kyc_status === 'not_submitted') {
+        // KYC not submitted
+        alertClass = 'alert-warning';
+        alertHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div class="alert-content">
+                <div class="alert-title">Complete Your KYC Verification</div>
+                <div class="alert-message">
+                    To list properties and accept visit requests, you need to complete your identity verification (KYC). 
+                    This process helps maintain trust and security on our platform.
+                </div>
+                <div class="eligibility-details">
+                    <strong>⚠️ Limited Access:</strong>
+                    <ul>
+                        <li>Cannot list new properties</li>
+                        <li>Cannot accept visit requests</li>
+                        <li>Cannot communicate with buyers</li>
+                    </ul>
+                </div>
+                <div class="alert-actions">
+                    <a href="kyc-verification.html" class="alert-btn alert-btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Start Verification
+                    </a>
+                    <a href="faq.html" class="alert-btn alert-btn-secondary">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        `;
+    } else if (kycStatus.kyc_status === 'pending_review') {
+        // KYC pending review
+        alertClass = 'alert-info';
+        alertHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <div class="alert-content">
+                <div class="alert-title">KYC Verification In Progress</div>
+                <div class="alert-message">
+                    Your KYC submission is being reviewed by our team. This usually takes 1-2 business days. 
+                    You'll receive a notification once your verification is complete.
+                </div>
+                ${!eligibility.eligible ? `
+                    <div class="eligibility-details">
+                        <strong>ℹ️ Temporary Restrictions:</strong>
+                        <ul>
+                            <li>Cannot list new properties</li>
+                            <li>Cannot accept visit requests</li>
+                        </ul>
+                    </div>
+                ` : ''}
+                <div class="alert-actions">
+                    <a href="kyc-verification.html" class="alert-btn alert-btn-secondary">
+                        View Submission
+                    </a>
+                </div>
+            </div>
+        `;
+    } else if (kycStatus.kyc_status === 'rejected') {
+        // KYC rejected
+        alertClass = 'alert-danger';
+        alertHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <div class="alert-content">
+                <div class="alert-title">KYC Verification Rejected</div>
+                <div class="alert-message">
+                    ${kycStatus.kyc_rejection_reason || 'Your KYC submission was rejected. Please review the information and documents, then resubmit.'}
+                </div>
+                <div class="eligibility-details">
+                    <strong>⛔ Account Restrictions:</strong>
+                    <ul>
+                        <li>Cannot list new properties</li>
+                        <li>Cannot accept visit requests</li>
+                        <li>Cannot communicate with buyers</li>
+                    </ul>
+                </div>
+                <div class="alert-actions">
+                    <a href="kyc-verification.html" class="alert-btn alert-btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6"/>
+                            <path d="M2.5 22v-6h6"/>
+                            <path d="M2 11.5a10 10 0 0 1 18.8-4.3"/>
+                            <path d="M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Resubmit KYC
+                    </a>
+                    <a href="contact.html" class="alert-btn alert-btn-secondary">
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+    
+    alertContainer.innerHTML = alertHTML;
+    alertContainer.className = alertClass;
+    alertContainer.style.display = 'flex';
 }
