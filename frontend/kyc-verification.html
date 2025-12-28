@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Verification - PropertyHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/kyc-verification.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .btn-icon {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="flex items-center gap-6">
+                <a href="home.html" class="logo">PropertyHub</a>
+                <nav>
+                    <ul class="nav-menu desktop">
+                        <li><a href="home.html" class="nav-link">Home</a></li>
+                        <li><a href="properties.html" class="nav-link">Properties</a></li>
+                        <li><a href="agent-dashboard.html" class="nav-link">Dashboard</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-icon btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon moon-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="btn btn-icon btn-ghost" id="notifications-btn" title="Notifications">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                </button>
+                <button class="btn btn-icon btn-ghost" id="profile-btn" title="Profile">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="btn btn-icon btn-ghost mobile-menu-btn" id="mobile-menu-toggle">
+                    <svg class="icon menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <svg class="icon close-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <nav class="grid gap-2">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="properties.html" class="nav-link">Properties</a>
+                <a href="agent-dashboard.html" class="nav-link">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="kyc-main">
+        <div class="container">
+            <!-- KYC Status Banner -->
+            <div id="kycStatusBanner" class="kyc-status-banner" style="display: none;"></div>
+
+            <div class="kyc-container">
+                <div class="kyc-header">
+                    <h1>KYC Verification</h1>
+                    <p class="kyc-subtitle">Complete your identity verification to start listing properties and accepting visit requests</p>
+                </div>
+
+                <!-- Progress Steps -->
+                <div class="kyc-progress">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Personal Info</div>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Upload Documents</div>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Review & Submit</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Personal Information -->
+                <div class="kyc-step" id="step1" style="display: block;">
+                    <div class="step-content">
+                        <h2>Personal Information</h2>
+                        <p class="step-description">Please provide your accurate personal and identification details</p>
+
+                        <form id="kycInfoForm" class="kyc-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phoneNumber">Phone Number *</label>
+                                    <input type="tel" id="phoneNumber" name="phone_number" required 
+                                           placeholder="+1234567890" pattern="[+]?[0-9]{10,20}">
+                                    <small class="form-help">Include country code (e.g., +1 for US)</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="company">Company (Optional)</label>
+                                    <input type="text" id="company" name="company" 
+                                           placeholder="Your company name" maxlength="200">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="idType">ID Type *</label>
+                                    <select id="idType" name="id_type" required>
+                                        <option value="">Select ID type</option>
+                                        <option value="passport">Passport</option>
+                                        <option value="drivers_license">Driver's License</option>
+                                        <option value="national_id">National ID</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="idNumber">ID Number *</label>
+                                    <input type="text" id="idNumber" name="id_number" required 
+                                           placeholder="Enter your ID number" minlength="5" maxlength="50">
+                                    <small class="form-help">As shown on your ID document</small>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="window.location.href='agent-dashboard.html'">Cancel</button>
+                                <button type="submit" class="btn-primary">Next: Upload Documents</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Step 2: Upload Documents -->
+                <div class="kyc-step" id="step2" style="display: none;">
+                    <div class="step-content">
+                        <h2>Upload Documents</h2>
+                        <p class="step-description">Upload clear photos of your ID and a selfie clearly showing your face</p>
+
+                        <div class="upload-section">
+                            <!-- Government ID Upload -->
+                            <div class="upload-card">
+                                <div class="upload-header">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                        <line x1="1" y1="10" x2="23" y2="10"/>
+                                    </svg>
+                                    <h3>Government ID</h3>
+                                </div>
+                                <p class="upload-description">Upload a clear photo of your passport, driver's license, or national ID</p>
+                                
+                                <div class="upload-preview" id="idPreview" style="display: none;">
+                                    <img id="idPreviewImg" src="" alt="ID Preview">
+                                    <button type="button" class="btn-remove" onclick="removeIdImage()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </div>
+                                
+                                <div class="upload-actions" id="idUploadActions">
+                                    <input type="file" id="idFileInput" accept="image/*,.pdf" style="display: none;">
+                                    <button type="button" class="btn-upload" onclick="document.getElementById('idFileInput').click()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        Upload from Gallery
+                                    </button>
+                                    <button type="button" class="btn-upload" onclick="openIdCamera()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                            <circle cx="12" cy="13" r="4"/>
+                                        </svg>
+                                        Take Photo
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Selfie Upload -->
+                            <div class="upload-card">
+                                <div class="upload-header">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    <h3>Selfie</h3>
+                                </div>
+                                <p class="upload-description">Take a selfie. Ensure your face is clearly visible</p>
+                                
+                                <div class="upload-preview" id="selfiePreview" style="display: none;">
+                                    <img id="selfiePreviewImg" src="" alt="Selfie Preview">
+                                    <button type="button" class="btn-remove" onclick="removeSelfieImage()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </div>
+                                
+                                <div class="upload-actions" id="selfieUploadActions">
+                                    <input type="file" id="selfieFileInput" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn-upload" onclick="document.getElementById('selfieFileInput').click()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                        Upload from Gallery
+                                    </button>
+                                    <button type="button" class="btn-upload" onclick="openSelfieCamera()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                            <circle cx="12" cy="13" r="4"/>
+                                        </svg>
+                                        Take Selfie
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="goToStep(1)">Back</button>
+                            <button type="button" class="btn-primary" onclick="goToStep(3)" id="proceedToReview">Review & Submit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Review -->
+                <div class="kyc-step" id="step3" style="display: none;">
+                    <div class="step-content">
+                        <h2>Review & Submit</h2>
+                        <p class="step-description">Please review your information before submitting</p>
+
+                        <div class="review-section">
+                            <div class="review-card">
+                                <h3>Personal Information</h3>
+                                <div class="review-grid">
+                                    <div class="review-item">
+                                        <span class="review-label">Phone Number</span>
+                                        <span class="review-value" id="reviewPhone">-</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <span class="review-label">Company</span>
+                                        <span class="review-value" id="reviewCompany">-</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <span class="review-label">ID Type</span>
+                                        <span class="review-value" id="reviewIdType">-</span>
+                                    </div>
+                                    <div class="review-item">
+                                        <span class="review-label">ID Number</span>
+                                        <span class="review-value" id="reviewIdNumber">-</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-link" onclick="goToStep(1)">Edit Information</button>
+                            </div>
+
+                            <div class="review-card">
+                                <h3>Uploaded Documents</h3>
+                                <div class="review-documents">
+                                    <div class="review-doc">
+                                        <span class="review-label">Government ID</span>
+                                        <div class="review-doc-preview" id="reviewIdPreview"></div>
+                                    </div>
+                                    <div class="review-doc">
+                                        <span class="review-label">Selfie with ID</span>
+                                        <div class="review-doc-preview" id="reviewSelfiePreview"></div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-link" onclick="goToStep(2)">Change Documents</button>
+                            </div>
+                        </div>
+
+                        <div class="terms-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required>
+                                <span>I confirm that all information provided is accurate and I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="goToStep(2)">Back</button>
+                            <button type="button" class="btn-primary" onclick="submitKYC()" id="submitKycBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Submit for Verification
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Camera Modal -->
+    <div class="modal" id="cameraModal">
+        <div class="modal-content camera-modal-content">
+            <div class="modal-header">
+                <h3 id="cameraModalTitle">Take Photo</h3>
+                <button class="modal-close" onclick="closeCameraModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container">
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <div class="camera-overlay" id="cameraOverlay"></div>
+                </div>
+                <div class="camera-controls">
+                    <button type="button" class="btn-secondary" onclick="closeCameraModal()">Cancel</button>
+                    <button type="button" class="btn-primary btn-capture" onclick="capturePhoto()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                        Capture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Container -->
+    <div id="alertsContainer"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/kyc-verification.js"></script>
+</body>
+</html>
