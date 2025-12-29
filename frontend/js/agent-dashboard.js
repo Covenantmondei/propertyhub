@@ -1,5 +1,3 @@
-// Agent Dashboard JavaScript
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Agent Dashboard loaded');
     
@@ -427,3 +425,25 @@ function displayKYCAlert(kycStatus, eligibility) {
     alertContainer.className = alertClass;
     alertContainer.style.display = 'flex';
 }
+
+// Ensure logout button worksz
+document.addEventListener('DOMContentLoaded', () => {
+    // Profile dropdown logout should already be handled by main.js
+    // But we can add a backup handler
+    const logoutButtons = document.querySelectorAll('[id*="logout"]');
+    logoutButtons.forEach(btn => {
+        if (!btn.hasAttribute('data-logout-handler')) {
+            btn.setAttribute('data-logout-handler', 'true');
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (typeof logout === 'function') {
+                    await logout();
+                } else if (typeof window.logout === 'function') {
+                    await window.logout();
+                } else {
+                    console.error('Logout function not found');
+                }
+            });
+        }
+    });
+});

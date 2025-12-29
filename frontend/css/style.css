@@ -486,6 +486,13 @@ main {
     display: none;
 }
 
+/* Ensure hamburger is hidden on desktop */
+@media (min-width: 769px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+}
+
 /* Footer Styles */
 .footer {
     margin-top: auto;

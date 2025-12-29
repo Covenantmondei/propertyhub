@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://myproperty-backend-seven.vercel.app';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 window.API_BASE_URL = API_BASE_URL;
 
 // Initialize theme and footer on page load
@@ -303,14 +303,84 @@ function getUser() {
     return userStr ? JSON.parse(userStr) : null;
 }
 
-function logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    showNotification('Logged out successfully', 'success');
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 1000);
+async function logout() {
+    try {
+        // Show confirmation dialog if available
+        let confirmed = true;
+        if (typeof showConfirm === 'function') {
+            confirmed = await showConfirm(
+                'Are you sure you want to logout?',
+                { title: 'Logout', confirmText: 'Logout', danger: true }
+            );
+        } else {
+            confirmed = confirm('Are you sure you want to logout?');
+        }
+        
+        if (!confirmed) {
+            return;
+        }
+
+        // Call backend logout endpoint to blacklist token
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                await fetch(`${API_BASE_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.error('Backend logout failed:', error);
+                // Continue with client-side logout even if backend fails
+            }
+        }
+
+        // Stop notification polling
+        if (typeof notificationManager !== 'undefined' && notificationManager.stopPolling) {
+            notificationManager.stopPolling();
+        }
+
+        // Clear all auth data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('lastUnreadMessages');
+        
+        // Clear session storage as well
+        sessionStorage.clear();
+
+        // Show success message
+        if (typeof showToast === 'function') {
+            showToast('Logged out successfully', 'success');
+        } else {
+            showNotification('Logged out successfully', 'success');
+        }
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    } catch (error) {
+        console.error('Logout error:', error);
+        
+        // Force logout even on error
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        if (typeof showToast === 'function') {
+            showToast('Logged out', 'info');
+        }
+        
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    }
 }
+
+// Make logout globally accessible
+window.logout = logout;
 
 // URL Parameter Functions
 function getUrlParameter(name) {
@@ -448,12 +518,21 @@ function initializeProfileButton() {
     // Create profile dropdown
     const dropdown = document.createElement('div');
     dropdown.className = 'profile-dropdown';
+    
+    // Check if dark mode is active
+    const isDark = document.documentElement.classList.contains('dark');
+    const bgColor = isDark ? '#1f2937' : 'white';
+    const textColor = isDark ? '#f9fafb' : '#111827';
+    const mutedColor = isDark ? '#9ca3af' : '#6b7280';
+    const borderColor = isDark ? '#374151' : '#e5e7eb';
+    const hoverBg = isDark ? '#374151' : '#f3f4f6';
+    
     dropdown.style.cssText = `
         position: absolute;
         top: 100%;
         right: 0;
         margin-top: 0.5rem;
-        background: white;
+        background: ${bgColor};
         border-radius: 0.5rem;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         min-width: 200px;
@@ -462,29 +541,30 @@ function initializeProfileButton() {
         transform: translateY(-10px);
         transition: all 0.2s ease;
         z-index: 1000;
+        border: 1px solid ${borderColor};
     `;
 
     const user = getUser();
     if (user) {
         dropdown.innerHTML = `
-            <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
-                <div style="font-weight: 600; color: #111827;">${user.username || 'User'}</div>
-                <div style="font-size: 0.875rem; color: #6b7280;">${user.role || 'buyer'}</div>
+            <div style="padding: 1rem; border-bottom: 1px solid ${borderColor};">
+                <div style="font-weight: 600; color: ${textColor};">${user.username || 'User'}</div>
+                <div style="font-size: 0.875rem; color: ${mutedColor};">${user.role || 'buyer'}</div>
             </div>
             <div style="padding: 0.5rem;">
                 ${user.role === 'agent' ? `
-                    <a href="agent-dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: #374151; text-decoration: none; transition: background 0.2s;">
+                    <a href="agent-dashboard.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: ${textColor}; text-decoration: none; transition: background 0.2s;">
                         <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                         Dashboard
                     </a>
                 ` : ''}
                 ${user.role === 'admin' ? `
-                    <a href="admin.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: #374151; text-decoration: none; transition: background 0.2s;">
+                    <a href="admin.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: ${textColor}; text-decoration: none; transition: background 0.2s;">
                         <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m8.66-14.14l-4.23 4.23M7.57 16.91l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.23-4.23M7.57 7.09L3.34 2.86"/></svg>
                         Admin Panel
                     </a>
                 ` : ''}
-                <button id="profile-logout-btn" style="display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.75rem; border-radius: 0.375rem; border: none; background: none; color: #ef4444; cursor: pointer; text-align: left; transition: background 0.2s; font-family: inherit; font-size: inherit;">
+                <button id="profile-logout-btn" data-logout-handler="true" style="display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.75rem; border-radius: 0.375rem; border: none; background: none; color: #ef4444; cursor: pointer; text-align: left; transition: background 0.2s; font-family: inherit; font-size: inherit;">
                     <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Logout
                 </button>
@@ -493,7 +573,7 @@ function initializeProfileButton() {
     } else {
         dropdown.innerHTML = `
             <div style="padding: 0.5rem;">
-                <a href="login.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: #374151; text-decoration: none; transition: background 0.2s;">
+                <a href="login.html" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.375rem; color: ${textColor}; text-decoration: none; transition: background 0.2s;">
                     <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                     Login
                 </a>
@@ -535,26 +615,26 @@ function initializeProfileButton() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
+            e.stopPropagation();
             
-            const confirmed = await showConfirm(
-                'Are you sure you want to logout?',
-                { title: 'Logout', confirmText: 'Logout', danger: true }
-            );
+            // Close dropdown first
+            dropdown.style.opacity = '0';
+            dropdown.style.visibility = 'hidden';
+            dropdown.style.transform = 'translateY(-10px)';
             
-            if (confirmed) {
-                logout();
-            }
+            // Call logout function
+            await logout();
         });
     }
 
-    // Add hover styles
-    const links = dropdown.querySelectorAll('a, button');
-    links.forEach(link => {
-        link.addEventListener('mouseenter', () => {
-            link.style.background = '#f3f4f6';
+    // Add hover effects to dropdown links
+    const dropdownLinks = dropdown.querySelectorAll('a, button');
+    dropdownLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.background = hoverBg;
         });
-        link.addEventListener('mouseleave', () => {
-            link.style.background = 'transparent';
+        link.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
         });
     });
 }

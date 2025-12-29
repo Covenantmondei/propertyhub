@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://myproperty-backend-seven.vercel.app';
+const BACKEND_URL = 'http://127.0.0.1:8000';
 let pendingRejectionData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -791,16 +791,62 @@ async function logout() {
         'Are you sure you want to logout?',
         { title: 'Logout', confirmText: 'Logout', danger: true }
     );
-    if (!confirmed) return;
     
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    showNotification('Logged out successfully', 'success');
-    
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 1000);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        // Call backend logout endpoint to blacklist token
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                await fetch(`${BACKEND_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.error('Backend logout failed:', error);
+                // Continue with client-side logout even if backend fails
+            }
+        }
+
+        // Stop notification polling if available
+        if (typeof notificationManager !== 'undefined' && notificationManager.stopPolling) {
+            notificationManager.stopPolling();
+        }
+
+        // Clear all auth data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('lastUnreadMessages');
+        
+        // Clear session storage as well
+        sessionStorage.clear();
+
+        // Show success message
+        showNotification('Logged out successfully', 'success');
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    } catch (error) {
+        console.error('Logout error:', error);
+        
+        // Force logout even on error
+        localStorage.clear();
+        sessionStorage.clear();
+        showNotification('Logged out', 'info');
+        
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+    }
 }
 
 // ============= KYC VERIFICATION FUNCTIONS =============

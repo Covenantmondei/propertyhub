@@ -240,7 +240,7 @@
 }
 
 .sidebar-toggle {
-    display: none;
+    display: none !important;
     width: 40px;
     height: 40px;
     background: none;
@@ -1084,7 +1084,7 @@
     }
 
     .sidebar-toggle {
-        display: flex;
+        display: flex !important;
     }
 
     .topbar-search {
