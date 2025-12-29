@@ -377,3 +377,98 @@ def get_agent_properties(db: Session, agent_id: int, skip: int = 0, limit: int =
     """Get all properties listed by an agent"""
     properties = db.query(UserProperty).filter(UserProperty.agent_id == agent_id).order_by(UserProperty.created_at.desc()).offset(skip).limit(limit).all()
     return properties
+
+
+def smart_match_properties(
+    db: Session,
+    budget: float,
+    user_id: int,
+    property_type: Optional[str] = None,
+    listing_type: Optional[str] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    # bedrooms: Optional[int] = None,
+    # bathrooms: Optional[int] = None,
+    limit: int = 20
+):
+    """
+    Smart match properties based on buyer's budget
+    Returns properties within ±20% of the budget, ranked by closeness to budget
+    """
+    # Calculate price range (±20% of budget)
+    lower_bound = budget * 0.8
+    upper_bound = budget * 1.2
+    
+    # Build query for available and approved properties
+    query = db.query(UserProperty).filter(
+        UserProperty.is_available == True,
+        UserProperty.is_approved == True,
+        UserProperty.price >= lower_bound,
+        UserProperty.price <= upper_bound
+    )
+    
+    # Apply optional filters
+    if property_type:
+        query = query.filter(UserProperty.property_type == property_type)
+    if listing_type:
+        query = query.filter(UserProperty.listing_type == listing_type)
+    if city:
+        query = query.filter(UserProperty.city.ilike(f"%{city}%"))
+    if state:
+        query = query.filter(UserProperty.state.ilike(f"%{state}%"))
+    
+    # Get all matching properties
+    properties = query.all()
+    
+    result = []
+    for prop in properties:
+        # Calculate percentage difference from budget
+        price_diff = abs(prop.price - budget)
+        price_diff_percentage = (price_diff / budget) * 100
+        
+        match_score = 100 - price_diff_percentage
+        
+        # Get primary image
+        primary_image = db.query(PropertyImage).filter(
+            PropertyImage.property_id == prop.id,
+            PropertyImage.is_primary == True
+        ).first()
+        
+        # Check if property is in user's favorites
+        is_favorite = db.query(Favorite).filter(
+            Favorite.user_id == user_id,
+            Favorite.property_id == prop.id
+        ).first() is not None
+        
+        prop_dict = {
+            "id": prop.id,
+            "title": prop.title,
+            "description": prop.description,
+            "property_type": prop.property_type,
+            "listing_type": prop.listing_type,
+            "price": prop.price,
+            "bedrooms": prop.bedrooms,
+            "bathrooms": prop.bathrooms,
+            "area_sqft": prop.area_sqft,
+            "address": prop.address,
+            "city": prop.city,
+            "state": prop.state,
+            "zip_code": prop.zip_code,
+            "country": prop.country,
+            "year_built": prop.year_built,
+            "parking_spaces": prop.parking_spaces,
+            "amenities": prop.amenities,
+            "is_available": prop.is_available,
+            "created_at": prop.created_at,
+            "primary_image": primary_image.image_url if primary_image else None,
+            "match_score": round(match_score, 2),
+            "price_difference": round(prop.price - budget, 2),
+            "is_favorite": is_favorite
+        }
+        result.append(prop_dict)
+    
+    # Sort by score (highest first)
+    result.sort(key=lambda x: x["match_score"], reverse=True)
+    
+    # Limit results
+    return result[:limit]

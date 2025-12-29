@@ -82,16 +82,22 @@ def get_current_user(token: str = Depends(oauth2_schema), db: Session = Depends(
     )
     
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print(f"DEBUG - Decoded token payload: {payload}")
+        # Check if user is logged out
+        from app.auth.models import TokenBlacklist
+        blacklisted = db.query(TokenBlacklist).filter(TokenBlacklist.token == token).first()
+        if blacklisted:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has been revoked",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
         
         if user_id is None:
-            print("DEBUG - user_id is None")
             raise credentials_exception
         
-        # Fetch the actual user from database
         user = db.query(User).filter(User.id == user_id).first()
         
         if user is None:
@@ -100,5 +106,4 @@ def get_current_user(token: str = Depends(oauth2_schema), db: Session = Depends(
         return user
         
     except JWTError as e:
-        print(f"DEBUG - JWT Error: {str(e)}")
         raise credentials_exception

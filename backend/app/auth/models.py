@@ -108,3 +108,13 @@ class ActivityLog(Base):
     # Relationships
     user = relationship("User", back_populates="activity_logs", foreign_keys=[user_id])
     admin = relationship("User", back_populates="admin_actions", foreign_keys=[admin_id])
+
+
+
+class TokenBlacklist(Base):
+    __tablename__ = "token_blacklist"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, index=True, nullable=False)
+    blacklisted_on = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False)
