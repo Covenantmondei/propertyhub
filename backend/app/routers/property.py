@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.auth.models import User
 from app.database import get_db
-from app.property.schemas import PropertyCreate, PropertyDisplay, PropertyListDisplay
+from app.property.schemas import PropertyCreate, PropertyDisplay, PropertyListDisplay, SmartMatchRequest, SmartMatchProperty
 from app.auth.oauth2 import get_current_user
 from app.property import property
 
@@ -95,3 +95,23 @@ def get_user_favorites(skip: int = 0, limit: int = 20, db: Session = Depends(get
 def get_agent_properties(db: Session = Depends(get_db), current_user: User = Depends(get_current_user), skip: int = 0, limit: int = 20):
     """Endpoint to get all properties listed by the current agent"""
     return property.get_agent_properties(db, current_user.id, skip=skip, limit=limit)
+
+
+@router.post("/smart-match", response_model=List[SmartMatchProperty])
+def smart_match_properties(request: SmartMatchRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Smart match properties based on buyer's budget.
+    Returns properties within ±20% of the budget, ranked by closeness to the budget.
+    """
+    return property.smart_match_properties(
+        db=db,
+        budget=request.budget,
+        user_id=current_user.id,
+        property_type=request.property_type,
+        listing_type=request.listing_type,
+        city=request.city,
+        state=request.state,
+        # bedrooms=request.bedrooms,
+        # bathrooms=request.bathrooms,
+        limit=request.limit
+    )

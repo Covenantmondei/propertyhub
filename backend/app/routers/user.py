@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from app.auth.oauth2 import oauth2_schema
 
 from app.auth import user
 
@@ -80,3 +81,10 @@ async def resend_verification_email(email: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to send email: {str(e)}"
         )
+
+
+
+@router.post("/logout")
+def logout(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
+    """Logout user by blacklisting the current token"""
+    return user.logout_user(db, token)

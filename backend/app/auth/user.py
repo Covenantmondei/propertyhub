@@ -1,14 +1,15 @@
+import datetime
 import os
 from fastapi import HTTPException, status
-from fastapi_mail import FastMail, MessageSchema
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import IntegrityError
 from jose import JWTError
 from .hash import Hash
-from .models import User
+from .models import TokenBlacklist, User
 from .oauth2 import create_access_token, generate_refresh_token, create_verification_token, verify_token
 from .schemas import UserBase
-from app.config import conf
+from app.config import send_email  # Changed: Import send_email from config
+from jose import jwt
 
 
 async def create_user(db: Session, request: UserBase):
@@ -166,7 +167,7 @@ async def send_verification_email(email: str, user_id: int):
     link = os.environ.get("FRONTEND_URL")
     verification_link = f"{link}/verify-email.html?token={token}"
 
-    body = f"""
+    html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -272,15 +273,13 @@ async def send_verification_email(email: str, user_id: int):
     </html>
     """
 
-    message = MessageSchema(
+    # Use Brevo send_email function
+    await send_email(
+        to_email=email,
         subject="🏠 Verify Your PropertyHub Account",
-        recipients=[email],
-        body=body,
-        subtype="html"
+        html_content=html_content,
+        sender_name="PropertyHub"
     )
-
-    fm = FastMail(conf)
-    await fm.send_message(message)
 
     return {"message": "Verification email sent"}
 
@@ -293,3 +292,43 @@ def user_profile(db: Session, user_id: int):
             detail="User not found"
         )
     return user
+
+
+
+def logout_user(db: Session, token: str):
+    """
+    Blacklist the token to prevent further use
+    """
+    try:
+        # Decode token to get expiration
+        payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+        exp_timestamp = payload.get("exp")
+        
+        if exp_timestamp:
+            expires_at = datetime.datetime.fromtimestamp(exp_timestamp)
+            
+            blacklisted_token = TokenBlacklist(
+                token=token,
+                expires_at=expires_at
+            )
+            db.add(blacklisted_token)
+            db.commit()
+            
+            return {"message": "Successfully logged out"}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token"
+            )
+            
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Logout failed: {str(e)}"
+        )

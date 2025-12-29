@@ -109,3 +109,30 @@ class FavoriteDisplay(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class SmartMatchRequest(BaseModel):
+    budget: float
+    property_type: Optional[str] = None
+    listing_type: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    limit: int = 20
+    # bedrooms: Optional[int] = None
+    # bathrooms: Optional[int] = None
+
+
+class SmartMatchProperty(PropertyListDisplay):
+    description: str
+    address: str
+    zip_code: Optional[str] = None
+    country: str
+    year_built: Optional[int] = None
+    parking_spaces: Optional[int] = None
+    amenities: Optional[str] = None
+    match_score: float
+    price_difference: float
+    is_favorite: bool
+    
+    class Config:
+        from_attributes = True
