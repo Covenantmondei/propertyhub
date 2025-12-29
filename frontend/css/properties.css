@@ -228,3 +228,54 @@
     font-weight: bold;
     margin-bottom: 0.5rem;
 }
+
+/* Smart Match Button Styles */
+#smart-match-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Floating Action Button (Mobile) */
+.floating-action-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.floating-action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.5);
+}
+
+.floating-action-btn:active {
+    transform: scale(0.95);
+}
+
+.floating-action-btn svg {
+    width: 28px;
+    height: 28px;
+    stroke: white;
+}
+
+@media (max-width: 768px) {
+    #smart-match-btn {
+        display: none;
+    }
+    
+    .floating-action-btn {
+        display: flex;
+    }
+}

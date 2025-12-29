@@ -99,6 +99,25 @@
 
 .hero-description {
     max-width: 600px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+@media (max-width: 640px) {
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
     color: hsl(var(--muted-foreground));
     font-size: 1rem;
     margin: 0 auto;

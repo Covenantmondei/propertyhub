@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/home.css">
     <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/smart-match.css">
     <style>
         .notification-badge {
             position: absolute;
@@ -170,6 +171,14 @@
                                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                                 Browse Properties
                             </a>
+                            <button onclick="openSmartMatchModal()" class="btn btn-lg btn-outline">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                    <path d="M11 8a3 3 0 0 0-3 3"/>
+                                </svg>
+                                Smart Match
+                            </button>
                             <!-- Only show for agents -->
                             <a href="new-property.html" class="btn btn-lg btn-outline" id="list-property-hero" style="display: none;">
                                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
@@ -221,5 +230,6 @@
     <script src="js/main.js"></script>
     <script src="js/alerts.js"></script>
     <script src="js/home.js"></script>
+    <script src="js/smart-match.js"></script>
 </body>
 </html>

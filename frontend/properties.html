@@ -6,6 +6,7 @@
     <title>Browse Properties - PropertyHub</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/properties.css">
+    <link rel="stylesheet" href="css/smart-match.css">
     <style>
         .notification-badge {
             position: absolute;
@@ -81,10 +82,20 @@
                     <h1 class="text-3xl font-bold mb-2">All Properties</h1>
                     <p class="text-muted">Browse through our available properties</p>
                 </div>
-                <a href="new-property.html" class="btn btn-primary desktop-only" id="add-property-btn" style="display: none;">
-                    <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add New Property
-                </a>
+                <div class="flex gap-3">
+                    <button onclick="openSmartMatchModal()" class="btn btn-outline" id="smart-match-btn">
+                        <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                            <path d="M11 8a3 3 0 0 0-3 3"/>
+                        </svg>
+                        Smart Match
+                    </button>
+                    <a href="new-property.html" class="btn btn-primary desktop-only" id="add-property-btn" style="display: none;">
+                        <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add New Property
+                    </a>
+                </div>
             </div>
 
             <div class="card mb-6">
@@ -113,8 +124,18 @@
         </div>
     </main>
 
+    <!-- Floating Smart Match Button (Mobile) -->
+    <button onclick="openSmartMatchModal()" class="floating-action-btn" id="floating-smart-match" aria-label="Smart Match">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+            <path d="M11 8a3 3 0 0 0-3 3"/>
+        </svg>
+    </button>
+
     <script src="js/main.js"></script>
     <script src="js/alerts.js"></script>
     <script src="js/properties.js"></script>
+    <script src="js/smart-match.js"></script>
 </body>
 </html>
