@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://myproperty-backend-seven.vercel.app';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 window.API_BASE_URL = API_BASE_URL;
 
 // Initialize theme and footer on page load
@@ -234,9 +234,9 @@ window.apiCall = apiCall;
 
 // Formatting Functions
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'NGN',
         maximumFractionDigits: 0
     }).format(amount);
 }

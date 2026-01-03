@@ -16,7 +16,7 @@ function initializeSmartMatch() {
             <div class="modal-overlay" onclick="closeSmartMatchModal()"></div>
             <div class="modal-content smart-match-modal-content">
                 <button class="modal-close" onclick="closeSmartMatchModal()" aria-label="Close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
@@ -24,21 +24,24 @@ function initializeSmartMatch() {
                 
                 <div class="smart-match-header">
                     <div class="smart-match-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            <path d="M15 10a5 5 0 01-5 5"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                            <path d="M11 8a3 3 0 0 0-3 3"/>
                         </svg>
                     </div>
                     <h2>Smart Property Match</h2>
                     <p>Find properties that fit your budget perfectly</p>
                 </div>
 
+                <div class="smart-match-body">
+
                 <form id="smart-match-form" onsubmit="handleSmartMatchSubmit(event)">
                     <div class="form-section">
                         <div class="form-group">
                             <label for="match-budget" class="form-label required">Your Budget</label>
                             <div class="input-with-icon">
-                                <span class="input-icon">$</span>
+                                <span class="input-icon">₦</span>
                                 <input 
                                     type="number" 
                                     id="match-budget" 
@@ -100,19 +103,21 @@ function initializeSmartMatch() {
                         </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeSmartMatchModal()">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="match-submit-btn">
-                            <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <circle cx="11" cy="11" r="8"/>
-                                <path d="m21 21-4.35-4.35"/>
-                            </svg>
-                            Find Matches
-                        </button>
-                    </div>
                 </form>
+                </div>
+
+                <div class="smart-match-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeSmartMatchModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" form="smart-match-form" class="btn btn-primary" id="match-submit-btn">
+                        <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        Find Matches
+                    </button>
+                </div>
 
                 <div id="smart-match-results" class="smart-match-results" style="display: none;">
                     <div class="results-header">
@@ -263,8 +268,8 @@ function displaySmartMatchResults(results, budget) {
         const priceDiff = property.price_difference;
         const priceDiffFormatted = formatPrice(Math.abs(priceDiff));
         const priceDiffClass = priceDiff < 0 ? 'under-budget' : priceDiff > 0 ? 'over-budget' : 'exact-budget';
-        const priceDiffText = priceDiff < 0 ? `$${priceDiffFormatted} under budget` : 
-                              priceDiff > 0 ? `$${priceDiffFormatted} over budget` : 
+        const priceDiffText = priceDiff < 0 ? `${priceDiffFormatted} under budget` : 
+                              priceDiff > 0 ? `${priceDiffFormatted} over budget` : 
                               'Exact match!';
         
         return `
@@ -381,9 +386,9 @@ function viewProperty(propertyId) {
 
 // Helper function to format price
 function formatPrice(price) {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'NGN',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(price);

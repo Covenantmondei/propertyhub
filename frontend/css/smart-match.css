@@ -1,18 +1,91 @@
 /* Smart Match Modal Styles */
 
-.smart-match-modal-content {
-    max-width: 900px;
-    max-height: 90vh;
+/* Base Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
     overflow-y: auto;
-    padding: 0;
+    padding: 2rem;
+    align-items: center;
+    justify-content: center;
 }
 
+.modal.active {
+    display: flex;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-close:hover {
+    background: white;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close svg {
+    width: 20px;
+    height: 20px;
+    stroke: #64748b;
+}
+
+/* Modal Content Container */
+.smart-match-modal-content {
+    position: relative;
+    background: hsl(var(--background));
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Header Section */
 .smart-match-header {
     text-align: center;
-    padding: 2rem 2rem 1.5rem;
+    padding: 3rem 2rem 2.5rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border-radius: 0.75rem 0.75rem 0 0;
+    flex-shrink: 0;
 }
 
 .smart-match-icon {
@@ -48,8 +121,15 @@
     font-size: 0.95rem;
 }
 
+/* Body Section */
+.smart-match-body {
+    flex: 1;
+    overflow-y: auto;
+    background: hsl(var(--background));
+}
+
 #smart-match-form {
-    padding: 2rem;
+    padding: 2.5rem 2rem;
 }
 
 .form-section {
@@ -124,21 +204,28 @@
     color: hsl(var(--muted-foreground));
 }
 
-.form-actions {
+/* Footer Section */
+.smart-match-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 1rem;
     padding: 1.5rem 2rem;
     border-top: 1px solid hsl(var(--border));
-    background: hsl(var(--muted));
-    border-radius: 0 0 0.75rem 0.75rem;
-    margin: 0 -2rem -2rem;
+    background: hsl(var(--muted) / 0.5);
+    flex-shrink: 0;
+}
+
+.smart-match-footer .btn {
+    min-width: 120px;
 }
 
 /* Results Section */
 .smart-match-results {
-    padding: 2rem;
+    padding: 2.5rem 2rem;
     background: hsl(var(--background));
+    flex: 1;
+    overflow-y: auto;
 }
 
 .results-header {
@@ -435,7 +522,27 @@
     margin: 0 0 1.5rem;
 }
 
-/* Spin animation for loading */
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -451,16 +558,20 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .modal {
+        padding: 0;
+    }
+
     .smart-match-modal-content {
         max-width: 100%;
         max-height: 100vh;
+        height: 100vh;
         border-radius: 0;
         margin: 0;
     }
 
     .smart-match-header {
-        padding: 1.5rem 1rem 1rem;
-        border-radius: 0;
+        padding: 2rem 1.5rem 1.5rem;
     }
 
     .smart-match-header h2 {
@@ -478,7 +589,7 @@
     }
 
     #smart-match-form {
-        padding: 1.5rem 1rem;
+        padding: 1.5rem;
     }
 
     .form-row {
@@ -486,18 +597,18 @@
         gap: 0;
     }
 
-    .form-actions {
+    .smart-match-footer {
         flex-direction: column-reverse;
-        padding: 1rem;
-        margin: 0 -1rem -1.5rem;
+        padding: 1.25rem 1.5rem;
     }
 
-    .form-actions .btn {
+    .smart-match-footer .btn {
         width: 100%;
+        min-width: unset;
     }
 
     .smart-match-results {
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
     .results-header {

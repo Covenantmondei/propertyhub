@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://myproperty-backend-seven.vercel.app';
+const BACKEND_URL = 'http://127.0.0.1:8000';
 let pendingRejectionData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -277,7 +277,7 @@ async function loadPendingProperties() {
                     <div>
                         <h3 class="approval-title">${escapeHtml(property.title)}</h3>
                         <p class="approval-meta">
-                            ${property.property_type} • $${formatCurrency(property.price)} • ${property.city || 'N/A'}, ${property.state || 'N/A'}
+                            ${property.property_type} • ₦${formatCurrency(property.price)} • ${property.city || 'N/A'}, ${property.state || 'N/A'}
                         </p>
                         <p class="approval-meta">Submitted: ${formatDate(property.created_at)}</p>
                     </div>
@@ -366,7 +366,7 @@ async function loadAllProperties() {
                                     </div>
                                 </td>
                                 <td><span class="badge badge-info">${property.property_type}</span></td>
-                                <td><strong>$${formatCurrency(property.price)}</strong></td>
+                                <td><strong>₦${formatCurrency(property.price)}</strong></td>
                                 <td>${property.city || 'N/A'}, ${property.state || 'N/A'}</td>
                                 <td><span class="badge badge-${status}">${status.toUpperCase()}</span></td>
                                 <td>${formatDate(property.created_at)}</td>

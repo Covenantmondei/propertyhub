@@ -10,6 +10,30 @@ document.addEventListener('DOMContentLoaded', () => {
     setupHeaderSearch();
 });
 
+function autoShowSmartMatchForBuyers() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Only show for buyers (not agents or admins)
+    if (user.role && user.role !== 'buyer') {
+        return;
+    }
+    
+    // Show on every login (for testing - adjust time threshold later if needed)
+    // const lastShown = localStorage.getItem('smartMatchLastShown');
+    // const now = Date.now();
+    // const dayInMs = 24 * 60 * 60 * 1000; // 24 hours
+    
+    // if (!lastShown || (now - parseInt(lastShown)) > dayInMs) {
+        // Delay popup slightly to let page load
+        setTimeout(() => {
+            if (typeof openSmartMatchModal === 'function') {
+                openSmartMatchModal();
+                // localStorage.setItem('smartMatchLastShown', now.toString());
+            }
+        }, 800);
+    // }
+}
+
 function checkAuthentication() {
     const authToken = localStorage.getItem('authToken');
     
