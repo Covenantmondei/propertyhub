@@ -8,6 +8,7 @@ from app.property.models import VisitRequest, UserProperty, VisitStatus
 from app.auth.models import User
 from app.property.visit_schemas import VisitRequestCreate, VisitRequestResponse, VisitRequestDecline, VisitRequestComplete, VisitRequestDisplay
 from app.auth.kyc import check_agent_eligibility, check_buyer_active_requests, update_agent_ranking, flag_buyer_for_abuse, check_buyer_no_shows
+from app.chat.models import Notification
 
 
 
@@ -93,6 +94,18 @@ def create_visit_request(db: Session, request: VisitRequestCreate, buyer_id: int
     db.commit()
     db.refresh(visit_request)
     
+    # Create notification for agent
+    buyer_name = f"{buyer.first_name} {buyer.last_name}"
+    notification = Notification(
+        user_id=property_obj.agent_id,
+        notification_type="visit_request",
+        related_id=visit_request.id,
+        title="New Visit Request",
+        body=f"{buyer_name} has requested to visit your property '{property_obj.title}' on {visit_request.preferred_date.strftime('%B %d, %Y')} at {visit_request.preferred_time_start}"
+    )
+    db.add(notification)
+    db.commit()
+    
     return build_visit_display(db, visit_request)
 
 
@@ -115,6 +128,20 @@ def agent_respond_accept(db: Session, visit_id: int, agent_id: int):
     
     db.commit()
     db.refresh(visit)
+    
+    # Create notification for buyer
+    agent = db.query(User).filter(User.id == agent_id).first()
+    property_obj = db.query(UserProperty).filter(UserProperty.id == visit.property_id).first()
+    agent_name = f"{agent.first_name} {agent.last_name}"
+    notification = Notification(
+        user_id=visit.buyer_id,
+        notification_type="visit_confirmed",
+        related_id=visit.id,
+        title="Visit Confirmed",
+        body=f"{agent_name} has confirmed your visit to '{property_obj.title}' on {visit.confirmed_date.strftime('%B %d, %Y')} at {visit.confirmed_time_start}"
+    )
+    db.add(notification)
+    db.commit()
     
     return build_visit_display(db, visit)
 
@@ -162,6 +189,20 @@ def agent_propose_reschedule(
     db.commit()
     db.refresh(visit)
     
+    # Create notification for buyer
+    agent = db.query(User).filter(User.id == agent_id).first()
+    property_obj = db.query(UserProperty).filter(UserProperty.id == visit.property_id).first()
+    agent_name = f"{agent.first_name} {agent.last_name}"
+    notification = Notification(
+        user_id=visit.buyer_id,
+        notification_type="visit_reschedule",
+        related_id=visit.id,
+        title="New Time Proposed",
+        body=f"{agent_name} has proposed a new time for your visit to '{property_obj.title}': {visit.proposed_date.strftime('%B %d, %Y')} at {visit.proposed_time_start}"
+    )
+    db.add(notification)
+    db.commit()
+    
     return build_visit_display(db, visit)
 
 
@@ -189,6 +230,19 @@ def agent_decline(db: Session, visit_id: int, agent_id: int, decline: VisitReque
     db.commit()
     db.refresh(visit)
     
+    # Create notification for buyer
+    property_obj = db.query(UserProperty).filter(UserProperty.id == visit.property_id).first()
+    agent_name = f"{agent.first_name} {agent.last_name}"
+    notification = Notification(
+        user_id=visit.buyer_id,
+        notification_type="visit_declined",
+        related_id=visit.id,
+        title="Visit Request Declined",
+        body=f"{agent_name} has declined your visit request for '{property_obj.title}'. Reason: {decline.decline_reason or 'Not specified'}"
+    )
+    db.add(notification)
+    db.commit()
+    
     return build_visit_display(db, visit)
 
 
@@ -211,6 +265,20 @@ def buyer_confirm_proposal(db: Session, visit_id: int, buyer_id: int):
     
     db.commit()
     db.refresh(visit)
+    
+    # Create notification for agent
+    buyer = db.query(User).filter(User.id == buyer_id).first()
+    property_obj = db.query(UserProperty).filter(UserProperty.id == visit.property_id).first()
+    buyer_name = f"{buyer.first_name} {buyer.last_name}"
+    notification = Notification(
+        user_id=visit.agent_id,
+        notification_type="visit_confirmed",
+        related_id=visit.id,
+        title="Visit Time Confirmed",
+        body=f"{buyer_name} has confirmed the visit to '{property_obj.title}' on {visit.confirmed_date.strftime('%B %d, %Y')} at {visit.confirmed_time_start}"
+    )
+    db.add(notification)
+    db.commit()
     
     return build_visit_display(db, visit)
 
@@ -264,6 +332,21 @@ def complete_visit(db: Session, visit_id: int, user_id: int, completion: VisitRe
     
     db.commit()
     db.refresh(visit)
+    
+    # Create notification for buyer when visit is completed
+    property_obj = db.query(UserProperty).filter(UserProperty.id == visit.property_id).first()
+    agent_name = f"{agent.first_name} {agent.last_name}"
+    
+    if completion.status == "completed":
+        notification = Notification(
+            user_id=visit.buyer_id,
+            notification_type="visit_completed",
+            related_id=visit.id,
+            title="Visit Completed",
+            body=f"Your visit to '{property_obj.title}' has been completed. Please take a moment to review your experience with {agent_name}."
+        )
+        db.add(notification)
+        db.commit()
     
     return build_visit_display(db, visit)
 

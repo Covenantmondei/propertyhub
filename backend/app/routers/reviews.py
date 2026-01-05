@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=ReviewResponse)
+@router.post("/review", response_model=ReviewResponse)
 def create_review(
     review_data: ReviewCreate,
     db: Session = Depends(get_db),
@@ -69,10 +69,6 @@ def get_review(review_id: int,db: Session = Depends(get_db)):
 
 
 @router.get("/check/{visit_id}")
-def check_can_review(
-    visit_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def check_can_review(visit_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Check if current user can review a visit"""
     return reviews.check_can_review(db, visit_id, current_user.id)
