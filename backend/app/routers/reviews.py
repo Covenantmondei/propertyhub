@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -29,22 +29,13 @@ def create_review(
 
 
 @router.put("/update/{review_id}", response_model=ReviewResponse)
-def update_review(
-    review_id: int,
-    review_data: ReviewUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def update_review(review_id: int, review_data: ReviewUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update an existing review"""
     return reviews.update_review(db, review_id, current_user.id, review_data)
 
 
 @router.delete("del/{review_id}")
-def delete_review(
-    review_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def delete_review(review_id: int, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     """Delete a review"""
     return reviews.delete_review(db, review_id, current_user.id)
 
@@ -72,10 +63,7 @@ def get_my_reviews(
 
 
 @router.get("/{review_id}", response_model=ReviewResponse)
-def get_review(
-    review_id: int,
-    db: Session = Depends(get_db)
-):
+def get_review(review_id: int,db: Session = Depends(get_db)):
     """Get a specific review by ID"""
     return reviews.get_review_by_id(db, review_id)
 
