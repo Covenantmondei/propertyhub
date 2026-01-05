@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import user, property, admin, chat, visits, kyc
+from app.routers import user, property, admin, chat, visits, kyc, reviews
 from app.auth.models import User, AgentProfile, ActivityLog
-from app.property.models import UserProperty, PropertyImage, Favorite, VisitRequest, PropertyReservation
+from app.property.models import UserProperty, PropertyImage, Favorite, VisitRequest, PropertyReservation, AgentReview
 from app.chat.models import Conversation, Message, Notification
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,6 +37,7 @@ app.include_router(admin.router)
 app.include_router(chat.router)
 app.include_router(visits.router)
 app.include_router(kyc.router)
+app.include_router(reviews.router)
 
 @app.get("/")
 def read_root():
