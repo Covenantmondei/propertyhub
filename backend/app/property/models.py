@@ -168,3 +168,42 @@ class PropertyReservation(Base):
     buyer = relationship("User", foreign_keys=[buyer_id], backref="buyer_reservations")
     agent = relationship("User", foreign_keys=[agent_id], backref="agent_reservations")
     visit_request = relationship("VisitRequest", back_populates="reservation")
+
+
+class AgentReview(Base):
+    __tablename__ = "agent_reviews"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    visit_request_id = Column(Integer, ForeignKey("visit_requests.id"), nullable=False)
+    property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
+    
+    # Rating (1-5)
+    rating = Column(Integer, nullable=False)
+    
+    # Review text
+    review_text = Column(Text)
+    
+    # Satisfaction metrics
+    communication_rating = Column(Integer)  # 1-5
+    professionalism_rating = Column(Integer)  # 1-5
+    knowledge_rating = Column(Integer)  # 1-5
+    responsiveness_rating = Column(Integer)  # 1-5
+    
+    # Would recommend
+    would_recommend = Column(Boolean, default=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Flag for inappropriate reviews
+    is_flagged = Column(Boolean, default=False)
+    flag_reason = Column(Text)
+    
+    # Relationships
+    agent = relationship("User", foreign_keys=[agent_id], backref="received_reviews")
+    buyer = relationship("User", foreign_keys=[buyer_id], backref="given_reviews")
+    visit_request = relationship("VisitRequest", back_populates="review")
+    property = relationship("UserProperty", back_populates="property_reviews")
