@@ -180,6 +180,21 @@ function createVisitCard(visit, isAgent) {
             `;
         }
         
+        // Add review button for completed visits
+        if (visit.status === 'completed' && !visit.has_review) {
+            actions += `
+                <button class="btn-review" onclick="openReviewModal(${visit.id})" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <i class="fas fa-star"></i> Review Agent
+                </button>
+            `;
+        } else if (visit.status === 'completed' && visit.has_review) {
+            actions += `
+                <button class="btn-reviewed" disabled style="background: #10b981; color: white; border: none; cursor: not-allowed;">
+                    <i class="fas fa-check-circle"></i> Reviewed
+                </button>
+            `;
+        }
+        
         actions += `
             <button class="btn-contact" onclick="contactPropertyAgent(${visit.property_id})">
                 <i class="fas fa-comment"></i> Contact Agent
@@ -570,6 +585,16 @@ async function submitCompletion(event, visitId) {
         showNotification('Visit marked as ' + (status === 'completed' ? 'completed' : 'no-show'), 'success');
         document.querySelector('.modal').remove();
         await loadVisits();
+        
+        // If visit completed successfully and user is buyer, prompt for review after a short delay
+        const user = getUser();
+        if (status === 'completed' && user.role === 'buyer') {
+            setTimeout(() => {
+                if (confirm('Would you like to rate and review the agent now?')) {
+                    openReviewModal(visitId);
+                }
+            }, 1000);
+        }
     } catch (error) {
         console.error('Failed to mark visit as completed:', error);
         showNotification('Failed to update visit status', 'error');

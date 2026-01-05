@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Profile - PropertyHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/page.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/agent-profile.css">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .btn-icon {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="flex items-center gap-6">
+                <a href="home.html" class="logo">PropertyHub</a>
+                <nav>
+                    <ul class="nav-menu desktop">
+                        <li><a href="home.html" class="nav-link">Home</a></li>
+                        <li><a href="properties.html" class="nav-link">Properties</a></li>
+                        <li><a href="favorites.html" class="nav-link">Favorites</a></li>
+                        <li><a href="visits.html" class="nav-link">Visits</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-icon btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="icon sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon moon-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <a href="chat.html" class="btn btn-icon btn-ghost" id="messages-btn" title="Messages">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
+                </a>
+                <button class="btn btn-icon btn-ghost" id="profile-btn" title="Profile">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="btn btn-icon btn-ghost mobile-menu-btn" id="mobile-menu-toggle">
+                    <svg class="icon menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    <svg class="icon close-icon hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <nav class="grid gap-2">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="properties.html" class="nav-link">Properties</a>
+                <a href="favorites.html" class="nav-link">Favorites</a>
+                <a href="visits.html" class="nav-link">Visits</a>
+                <a href="chat.html" class="nav-link">Messages</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="agent-profile-main">
+        <div class="container">
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-container">
+                <div class="spinner-large"></div>
+                <p>Loading agent profile...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="error-container" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <h2>Agent Not Found</h2>
+                <p>The agent you're looking for doesn't exist or has been removed.</p>
+                <a href="properties.html" class="btn btn-primary">Browse Properties</a>
+            </div>
+
+            <!-- Agent Profile Content -->
+            <div id="profile-content" style="display: none;">
+                <!-- Agent Header -->
+                <div class="agent-header">
+                    <div class="agent-avatar-large" id="agent-avatar"></div>
+                    <div class="agent-info">
+                        <h1 class="agent-name" id="agent-name"></h1>
+                        <div class="agent-rating-summary">
+                            <div class="rating-stars" id="rating-stars"></div>
+                            <span class="rating-value" id="rating-value">0.0</span>
+                            <span class="rating-count" id="rating-count">(0 reviews)</span>
+                        </div>
+                        <div class="agent-contact-info">
+                            <div class="contact-item" id="agent-email"></div>
+                            <div class="contact-item" id="agent-phone"></div>
+                        </div>
+                        <button class="btn btn-primary" id="contact-agent-btn" onclick="contactAgent()">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            Contact Agent
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rating Breakdown -->
+                <div class="rating-breakdown" id="rating-breakdown"></div>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section">
+                    <div class="reviews-header">
+                        <h2>Client Reviews</h2>
+                        <div class="reviews-filter">
+                            <select id="reviews-sort" class="form-select">
+                                <option value="recent">Most Recent</option>
+                                <option value="highest">Highest Rated</option>
+                                <option value="lowest">Lowest Rated</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="reviews-list" class="reviews-list"></div>
+
+                    <!-- Empty State -->
+                    <div id="no-reviews" class="no-reviews" style="display: none;">
+                        <div class="no-reviews-icon">⭐</div>
+                        <h3>No Reviews Yet</h3>
+                        <p>This agent hasn't received any reviews yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Designed and Developed with <span class="footer-heart">❤️</span> by
+                <a href="https://www.youtube.com/@diecastbydollar" target="_blank" class="footer-link">Covenant Monday</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/agent-profile.js"></script>
+</body>
+</html>
