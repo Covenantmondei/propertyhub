@@ -7,6 +7,15 @@ let userFavorites = [];
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Properties page loaded');
     
+    // Hide Smart Match buttons for agents
+    const user = getUser();
+    if (user && user.role === 'agent') {
+        const smartMatchBtn = document.getElementById('smart-match-btn');
+        const floatingSmartMatch = document.getElementById('floating-smart-match');
+        if (smartMatchBtn) smartMatchBtn.style.display = 'none';
+        if (floatingSmartMatch) floatingSmartMatch.style.display = 'none';
+    }
+    
     // Get URL parameters if any
     currentFilters = getAllUrlParameters();
     

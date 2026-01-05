@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://myproperty-backend-three.vercel.app';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 window.API_BASE_URL = API_BASE_URL;
 
 // Initialize theme and footer on page load
@@ -499,9 +499,33 @@ function initializeUserRoleUI() {
         'add-property-btn'
     ];
 
+    // Elements that should only show for buyers
+    const buyerOnlyElements = [
+        'smart-match-btn',
+        'smart-match-hero-btn',
+        'floating-smart-match'
+    ];
+
     // Show agent-specific elements only if user is an agent
     if (user.role === 'agent') {
         agentOnlyElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.display = '';
+            }
+        });
+        // Hide buyer-only elements for agents
+        buyerOnlyElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
+    }
+
+    // Show buyer-specific elements for buyers
+    if (user.role === 'buyer') {
+        buyerOnlyElements.forEach(elementId => {
             const element = document.getElementById(elementId);
             if (element) {
                 element.style.display = '';
@@ -803,9 +827,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             notificationManager.startPolling(30); // Check every 30 seconds
         }, 2000);
 
-        // Setup notifications button click handler
+        // Setup notifications button click handler (for all users - agents and buyers)
         const notificationsBtn = document.getElementById('notifications-btn');
-        if (notificationsBtn && user.role === 'agent') {
+        if (notificationsBtn) {
             notificationsBtn.style.display = 'inline-block';
             notificationsBtn.addEventListener('click', showNotificationsPanel);
         }
@@ -829,7 +853,10 @@ async function showNotificationsPanel() {
                 border-bottom: 1px solid #e5e7eb;
                 cursor: pointer;
                 ${!notif.is_read ? 'background: #eff6ff;' : ''}
-            " data-notification-id="${notif.id}" data-conversation-id="${notif.conversation_id}">
+            " data-notification-id="${notif.id}" 
+               data-notification-type="${notif.notification_type || 'message'}"
+               data-conversation-id="${notif.conversation_id || ''}"
+               data-related-id="${notif.related_id || ''}">
                 <div style="font-weight: 600; margin-bottom: 0.25rem;">${notif.title}</div>
                 <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">${notif.body}</div>
                 <div style="font-size: 0.75rem; color: #9ca3af;">${formatTimeAgo(notif.created_at)}</div>
@@ -842,7 +869,7 @@ async function showNotificationsPanel() {
                 ${notificationsHTML}
             </div>
             <div style="padding: 1rem; border-top: 1px solid #e5e7eb; text-align: center;">
-                <button onclick="markAllNotificationsRead()" style="
+                <button id="mark-all-read-btn" style="
                     padding: 0.5rem 1rem;
                     background: #3b82f6;
                     color: white;
@@ -856,21 +883,37 @@ async function showNotificationsPanel() {
         // Show custom modal (you can integrate with your existing alert system)
         await showAlert(modalContent, 'info', 'Notifications');
 
+        // Add click handler to mark all as read button
+        const markAllBtn = document.getElementById('mark-all-read-btn');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', markAllNotificationsRead);
+        }
+
         // Add click handlers to notification items
         document.querySelectorAll('.notification-item').forEach(item => {
             item.addEventListener('click', async () => {
                 const notifId = item.dataset.notificationId;
+                const notifType = item.dataset.notificationType;
                 const conversationId = item.dataset.conversationId;
+                const relatedId = item.dataset.relatedId;
                 
                 // Mark as read
                 try {
                     await apiCall(`/chat/notifications/${notifId}`, { method: 'PUT' });
                     notificationManager.checkNotifications();
                     
-                    // Navigate to conversation
-                    window.location.href = `chat.html?conversation=${conversationId}`;
+                    // Navigate based on notification type
+                    if (notifType === 'message' && conversationId) {
+                        window.location.href = `chat.html?conversation=${conversationId}`;
+                    } else if (notifType.startsWith('visit_') && relatedId) {
+                        // Visit-related notifications
+                        window.location.href = `visits.html`;
+                    } else {
+                        // Default: refresh current page
+                        window.location.reload();
+                    }
                 } catch (error) {
-                    console.error('Error marking notification as read:', error);
+                    console.error('Error handling notification:', error);
                 }
             });
         });
@@ -890,11 +933,19 @@ async function markAllNotificationsRead() {
         // Close modal if using custom alert system
         const overlay = document.querySelector('.alert-overlay');
         if (overlay) overlay.remove();
+        
+        // Reload notifications panel to show updated state
+        setTimeout(() => {
+            showNotificationsPanel();
+        }, 500);
     } catch (error) {
         console.error('Error marking notifications as read:', error);
         showToast('Failed to mark notifications as read', 'error');
     }
 }
+
+// Make it globally accessible
+window.markAllNotificationsRead = markAllNotificationsRead;
 
 function formatTimeAgo(dateString) {
     const date = new Date(dateString);

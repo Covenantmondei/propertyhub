@@ -62,7 +62,7 @@ function displayPropertyDetails(property) {
     
     // Update basic information
     document.getElementById('property-title').textContent = property.title;
-    document.getElementById('property-price').textContent = `₦${formatCurrency(property.price)}${property.listing_type === 'rent' ? ' / month' : ''}`;
+    document.getElementById('property-price').textContent = `₦${formatCurrency(property.price)}${property.listing_type === 'rent' ? ' / year' : ''}`;
     document.getElementById('property-location').textContent = location;
     document.getElementById('property-description').textContent = property.description;
 
@@ -406,18 +406,15 @@ async function submitVisitRequest(event) {
             })
         });
         
-        showNotification('Visit request submitted successfully!', 'success');
+        showNotification('Visit request sent to agent successfully!', 'success');
         
         // Close modal
         document.getElementById('schedule-visit-modal').remove();
         
-        // Show success message with option to view visits
+        // Redirect to visits page after a short delay
         setTimeout(() => {
-            const viewVisits = confirm('Your visit request has been sent to the agent. Would you like to view your visits?');
-            if (viewVisits) {
-                window.location.href = 'visits.html';
-            }
-        }, 500);
+            window.location.href = 'visits.html';
+        }, 1500);
         
     } catch (error) {
         console.error('Failed to submit visit request:', error);
