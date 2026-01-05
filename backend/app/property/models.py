@@ -65,6 +65,7 @@ class UserProperty(Base):
     favorites = relationship("Favorite", back_populates="property", cascade="all, delete-orphan")
     visit_requests = relationship("VisitRequest", back_populates="property", cascade="all, delete-orphan")
     reservations = relationship("PropertyReservation", back_populates="property", cascade="all, delete-orphan")
+    property_reviews = relationship("AgentReview", back_populates="property", cascade="all, delete-orphan")
 
 
 class PropertyImage(Base):
@@ -134,6 +135,7 @@ class VisitRequest(Base):
     property = relationship("UserProperty", back_populates="visit_requests")
     buyer = relationship("User", foreign_keys=[buyer_id], backref="buyer_visits")
     agent = relationship("User", foreign_keys=[agent_id], backref="agent_visits")
+    review = relationship("AgentReview", back_populates="visit_request", uselist=False)
     reservation = relationship("PropertyReservation", back_populates="visit_request", uselist=False)
 
 

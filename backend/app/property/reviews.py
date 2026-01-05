@@ -1,6 +1,6 @@
-from fastapi import HTTPException, status, Integer
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, cast, Integer
 from datetime import datetime
 from typing import List, Optional
 
