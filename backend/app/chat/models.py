@@ -57,8 +57,12 @@ class Notification(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    message_id = Column(Integer, ForeignKey("messages.id"), nullable=False)
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    message_id = Column(Integer, ForeignKey("messages.id"), nullable=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=True)
+    
+    # Optional fields for different notification types
+    notification_type = Column(String, default="message")  # message, visit_request, visit_update, etc.
+    related_id = Column(Integer, nullable=True)  # ID of related entity (visit_id, property_id, etc.)
     
     title = Column(String, nullable=False)
     body = Column(Text, nullable=False)

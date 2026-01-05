@@ -77,8 +77,10 @@ class NotificationBase(BaseModel):
 class NotificationResponse(NotificationBase):
     id: int
     user_id: int
-    message_id: int
-    conversation_id: int
+    message_id: Optional[int] = None
+    conversation_id: Optional[int] = None
+    notification_type: str = "message"
+    related_id: Optional[int] = None
     is_read: bool
     read_at: Optional[datetime]
     created_at: datetime

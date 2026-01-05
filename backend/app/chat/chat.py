@@ -234,7 +234,13 @@ def get_conversation_with_messages(
     message_responses = []
     for msg in messages:
         message_responses.append(MessageResponse(
-            **msg.__dict__,
+            id=msg.id,
+            conversation_id=msg.conversation_id,
+            sender_id=msg.sender_id,
+            content=msg.content,
+            is_read=msg.is_read,
+            read_at=msg.read_at,
+            created_at=msg.created_at,
             sender_name=f"{msg.sender.first_name} {msg.sender.last_name}"
         ))
     
@@ -243,7 +249,14 @@ def get_conversation_with_messages(
     other_user = conversation.agent if is_buyer else conversation.buyer
     
     conversation_with_messages = ConversationWithMessages(
-        **conversation.__dict__,
+        id=conversation.id,
+        property_id=conversation.property_id,
+        buyer_id=conversation.buyer_id,
+        agent_id=conversation.agent_id,
+        last_message_at=conversation.last_message_at,
+        last_message_preview=conversation.last_message_preview,
+        is_active=conversation.is_active,
+        created_at=conversation.created_at,
         property_title=conversation.property.title,
         property_price=conversation.property.price,
         property_city=conversation.property.city,
