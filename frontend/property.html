@@ -86,6 +86,23 @@
                     <!-- Amenities -->
                     <div id="property-amenities"></div>
 
+                    <!-- Agent Profile Section -->
+                    <div class="agent-profile-section" id="agent-profile-section">
+                        <h3>Listed By</h3>
+                        <div class="agent-profile-card">
+                            <div class="agent-avatar" id="agent-avatar"></div>
+                            <div class="agent-info">
+                                <h4 class="agent-name" id="agent-name"></h4>
+                                <div class="agent-rating" id="agent-rating"></div>
+                                <p class="agent-contact" id="agent-contact"></p>
+                            </div>
+                            <button class="btn btn-outline" onclick="viewAgentProfile()">
+                                <i class="fas fa-user"></i>
+                                View Profile
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="property-actions">
                         <button id="favorite-btn" class="btn btn-favorite" onclick="togglePropertyFavorite()" style="display: none;">
