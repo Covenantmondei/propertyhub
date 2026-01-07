@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages | Real Estate</title>
+    <title>Messages | PropertyHub</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/alerts.css">
@@ -16,7 +16,7 @@
             <div class="nav-wrapper">
                 <a href="home.html" class="nav-brand">
                     <i class="fas fa-home"></i>
-                    <span>Real Estate</span>
+                    <span>PropertyHub</span>
                 </a>
                 
                 <div class="nav-menu" id="navMenu">
@@ -89,11 +89,14 @@
                     <!-- Chat Header -->
                     <div class="chat-header">
                         <div class="chat-header-info">
-                            <div class="user-avatar">
+                            <div class="user-avatar" id="chat-user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
                             <div class="user-details">
-                                <h3 id="chat-user-name">User Name</h3>
+                                <h3 id="chat-user-name" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" title="View profile">
+                                    User Name
+                                    <i class="fas fa-external-link-alt" style="font-size: 0.8rem; opacity: 0.6;"></i>
+                                </h3>
                                 <p id="chat-property-info">Property Name</p>
                             </div>
                         </div>
