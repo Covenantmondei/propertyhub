@@ -60,6 +60,22 @@ def get_user_profile(current_user: UserBase = Depends(get_current_user), db: Ses
     return user.user_profile(db, current_user.id)
 
 
+@router.get("/users/{user_id}", response_model=UserDisplay)
+def get_user_by_id(
+    user_id: int,
+    current_user: UserBase = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user information by ID (for viewing other user profiles)"""
+    user_obj = db.query(User).filter(User.id == user_id).first()
+    if not user_obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user_obj
+
+
 @router.post("/resend-verification")
 async def resend_verification_email(email: str, db: Session = Depends(get_db)):
     """Resend verification email"""

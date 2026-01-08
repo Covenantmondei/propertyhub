@@ -54,6 +54,7 @@ class ConversationDetail(ConversationBase):
     other_user_id: Optional[int] = None
     other_user_name: Optional[str] = None
     other_user_email: Optional[str] = None
+    other_user_role: Optional[str] = None  # 'agent' or 'buyer'
     
     # Unread count
     unread_count: int = 0

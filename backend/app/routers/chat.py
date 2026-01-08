@@ -104,6 +104,14 @@ async def send_new_message(
     return message_response
 
 
+
+@router.patch("/notifications/all")
+def mark_all_notifications_as_read(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Mark all notifications as read for the current user"""
+    return mark_all_notifications_read(db, current_user)
+
+
+
 @router.get("/notifications", response_model=List[NotificationResponse])
 def get_notifications(
     db: Session = Depends(get_db),
@@ -116,7 +124,8 @@ def get_notifications(
     return get_user_notifications(db, current_user, unread_only, skip, limit)
 
 
-@router.put("/notifications/{notification_id}", response_model=NotificationResponse)
+
+@router.patch("/notifications/{notification_id}", response_model=NotificationResponse)      
 def mark_notification_as_read(
     notification_id: int,
     db: Session = Depends(get_db),
@@ -126,32 +135,17 @@ def mark_notification_as_read(
     return mark_notification_read(db, notification_id, current_user)
 
 
-@router.put("/notifications/mark-all-read")
-def mark_all_notifications_as_read(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Mark all notifications as read for the current user"""
-    return mark_all_notifications_read(db, current_user)
-
 
 @router.get("/stats", response_model=ChatStats)
-def get_chat_stats(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def get_chat_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get chat statistics for the current user"""
     return get_user_chat_stats(db, current_user)
 
 
 @router.websocket("/ws/{user_id}")
-async def websocket_endpoint(
-    websocket: WebSocket,
-    user_id: int
-):
+async def websocket_endpoint(websocket: WebSocket, user_id: int):
     """
     WebSocket connection for real-time chat
-    Note: In production, you should authenticate the WebSocket connection
     """
     await manager.connect(websocket, user_id)
     

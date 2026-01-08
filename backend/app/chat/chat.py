@@ -6,10 +6,8 @@ from datetime import datetime
 
 from app.auth.models import User, UserRole
 from app.chat.models import Conversation, Message, Notification
-from app.chat.schemas import (
-    ConversationCreate, ConversationDetail, ConversationWithMessages,
-    MessageResponse, NotificationResponse, ChatStats, MessageBase
-)
+from app.chat.schemas import ConversationCreate, ConversationDetail, ConversationWithMessages, MessageResponse, NotificationResponse, ChatStats, MessageBase
+
 from app.property.models import UserProperty
 
 
@@ -181,6 +179,7 @@ def get_user_conversations(
             other_user_id=other_user.id,
             other_user_name=f"{other_user.first_name} {other_user.last_name}",
             other_user_email=other_user.email,
+            other_user_role=other_user.role,
             unread_count=unread_count
         ))
     
@@ -263,6 +262,7 @@ def get_conversation_with_messages(
         other_user_id=other_user.id,
         other_user_name=f"{other_user.first_name} {other_user.last_name}",
         other_user_email=other_user.email,
+        other_user_role=other_user.role,
         unread_count=0,
         messages=message_responses
     )
