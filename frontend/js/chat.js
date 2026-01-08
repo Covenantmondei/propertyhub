@@ -251,8 +251,20 @@ async function loadConversation(conversationId) {
         
         // Update header
         const initials = conversationData.other_user_name.split(' ').map(n => n[0]).join('').toUpperCase();
-        document.querySelector('.user-avatar').innerHTML = `<span>${initials}</span>`;
-        document.getElementById('chat-user-name').textContent = conversationData.other_user_name;
+        const avatarEl = document.getElementById('chat-user-avatar');
+        avatarEl.innerHTML = `<span>${initials}</span>`;
+        
+        const userNameEl = document.getElementById('chat-user-name');
+        userNameEl.textContent = conversationData.other_user_name;
+        
+        // Store other user ID and setup profile click handler
+        window.currentChatUserId = conversationData.other_user_id;
+        window.currentChatUserRole = conversationData.other_user_role || 'buyer'; // Assume buyer if not specified
+        
+        // Add click handler to view profile
+        userNameEl.onclick = () => viewChatUserProfile();
+        userNameEl.style.cursor = 'pointer';
+        
         document.getElementById('chat-property-info').textContent = conversationData.property_title;
         
         // Render messages
@@ -275,6 +287,123 @@ async function loadConversation(conversationId) {
         console.error('Failed to load conversation:', error);
         loadingEl.style.display = 'none';
         showNotification('Failed to load conversation', 'error');
+    }
+}
+
+// View the profile of the user you're chatting with
+function viewChatUserProfile() {
+    if (!window.currentChatUserId) {
+        showNotification('User information not available', 'error');
+        return;
+    }
+    
+    const currentUserData = getUser();
+    
+    // If current user is a buyer viewing an agent's profile
+    if (currentUserData.role === 'buyer' && window.currentChatUserRole === 'agent') {
+        window.location.href = `agent-profile.html?agent_id=${window.currentChatUserId}`;
+    }
+    // If current user is an agent viewing a buyer's profile
+    else if (currentUserData.role === 'agent' && window.currentChatUserRole === 'buyer') {
+        // Show buyer profile modal or navigate to buyer profile page
+        showBuyerProfileModal(window.currentChatUserId);
+    }
+    else {
+        showNotification('Profile viewing not available for this user type', 'info');
+    }
+}
+
+// Show buyer profile information in a modal
+async function showBuyerProfileModal(buyerId) {
+    try {
+        const response = await apiCall(`/auth/users/${buyerId}`, 'GET');
+        
+        if (!response.success) {
+            showNotification('Failed to load buyer profile', 'error');
+            return;
+        }
+        
+        const buyer = response.data;
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        `;
+        
+        modalContent.innerHTML = `
+            <button onclick="this.closest('.modal-overlay').remove()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; margin-bottom: 15px;">
+                    ${buyer.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </div>
+                <h2 style="margin: 0 0 5px 0; color: #2d3748;">${buyer.full_name}</h2>
+                <p style="color: #718096; margin: 0;">Buyer</p>
+            </div>
+            
+            <div style="background: #f7fafc; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #4a5568; font-size: 14px; margin-bottom: 5px; font-weight: 500;">Email</label>
+                    <p style="margin: 0; color: #2d3748;">${buyer.email}</p>
+                </div>
+                
+                ${buyer.phone ? `
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #4a5568; font-size: 14px; margin-bottom: 5px; font-weight: 500;">Phone</label>
+                    <p style="margin: 0; color: #2d3748;">${buyer.phone}</p>
+                </div>
+                ` : ''}
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #4a5568; font-size: 14px; margin-bottom: 5px; font-weight: 500;">Member Since</label>
+                    <p style="margin: 0; color: #2d3748;">${new Date(buyer.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+                
+                ${buyer.is_verified ? `
+                <div style="display: inline-flex; align-items: center; background: #c6f6d5; color: #22543d; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 500;">
+                    <span style="margin-right: 5px;">✓</span> Verified Buyer
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+    } catch (error) {
+        console.error('Failed to load buyer profile:', error);
+        showNotification('Failed to load buyer profile', 'error');
     }
 }
 

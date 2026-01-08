@@ -471,14 +471,6 @@ function initializeFooter() {
         // Show logout button if user is authenticated
         if (isAuthenticated()) {
             logoutBtn.classList.add('visible');
-            const user = getUser();
-            if (user && user.username) {
-                const userInfo = document.getElementById('footer-user-info');
-                if (userInfo) {
-                    userInfo.textContent = `Logged in as ${user.username}`;
-                    userInfo.style.display = 'inline';
-                }
-            }
         }
         
         // Add click handler
@@ -881,42 +873,49 @@ async function showNotificationsPanel() {
         `;
 
         // Show custom modal (you can integrate with your existing alert system)
-        await showAlert(modalContent, 'info', 'Notifications');
+        // Use setTimeout to attach event listeners after modal is rendered
+        setTimeout(() => {
+            // Add click handler to mark all as read button
+            const markAllBtn = document.getElementById('mark-all-read-btn');
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', markAllNotificationsRead);
+            }
 
-        // Add click handler to mark all as read button
-        const markAllBtn = document.getElementById('mark-all-read-btn');
-        if (markAllBtn) {
-            markAllBtn.addEventListener('click', markAllNotificationsRead);
-        }
-
-        // Add click handlers to notification items
-        document.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', async () => {
-                const notifId = item.dataset.notificationId;
-                const notifType = item.dataset.notificationType;
-                const conversationId = item.dataset.conversationId;
-                const relatedId = item.dataset.relatedId;
-                
-                // Mark as read
-                try {
-                    await apiCall(`/chat/notifications/${notifId}`, { method: 'PUT' });
-                    notificationManager.checkNotifications();
+            // Add click handlers to notification items
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', async () => {
+                    const notifId = item.dataset.notificationId;
+                    const notifType = item.dataset.notificationType;
+                    const conversationId = item.dataset.conversationId;
+                    const relatedId = item.dataset.relatedId;
                     
-                    // Navigate based on notification type
-                    if (notifType === 'message' && conversationId) {
-                        window.location.href = `chat.html?conversation=${conversationId}`;
-                    } else if (notifType.startsWith('visit_') && relatedId) {
-                        // Visit-related notifications
-                        window.location.href = `visits.html`;
-                    } else {
-                        // Default: refresh current page
-                        window.location.reload();
+                    // Mark as read
+                    try {
+                        await apiCall(`/chat/notifications/${notifId}`, { method: 'PATCH' });
+                        notificationManager.checkNotifications();
+                        
+                        // Close modal
+                        const overlay = document.querySelector('.alert-overlay');
+                        if (overlay) overlay.remove();
+                        
+                        // Navigate based on notification type
+                        if (notifType === 'message' && conversationId) {
+                            window.location.href = `chat.html?conversation=${conversationId}`;
+                        } else if (notifType.startsWith('visit_') && relatedId) {
+                            // Visit-related notifications
+                            window.location.href = `visits.html`;
+                        } else {
+                            // Default: refresh current page
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error handling notification:', error);
                     }
-                } catch (error) {
-                    console.error('Error handling notification:', error);
-                }
+                });
             });
-        });
+        }, 100);
+
+        await showAlert(modalContent, 'info', 'Notifications');
 
     } catch (error) {
         console.error('Error loading notifications:', error);
@@ -926,7 +925,7 @@ async function showNotificationsPanel() {
 
 async function markAllNotificationsRead() {
     try {
-        await apiCall('/chat/notifications/mark-all-read', { method: 'PUT' });
+        await apiCall('/chat/notifications/all', { method: 'PATCH' });
         notificationManager.checkNotifications();
         showToast('All notifications marked as read', 'success');
         

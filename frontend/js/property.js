@@ -191,9 +191,88 @@ function displayPropertyDetails(property) {
         }
     }
 
+    // Display agent profile section
+    displayAgentProfile(property);
+
     // Update page title
     document.title = `${property.title} - Real Estate`;
 }
+
+// Display agent profile information
+async function displayAgentProfile(property) {
+    if (!property.agent) return;
+    
+    const agent = property.agent;
+    const agentName = `${agent.first_name} ${agent.last_name}`;
+    const agentInitials = `${agent.first_name[0]}${agent.last_name[0]}`.toUpperCase();
+    
+    // Store agent_id globally for viewAgentProfile function
+    window.currentAgentId = agent.id;
+    
+    // Fetch agent reviews to get rating
+    try {
+        const reviewData = await apiCall(`/reviews/agent/${agent.id}`);
+        const rating = reviewData.average_rating || 0;
+        const totalReviews = reviewData.total_reviews || 0;
+        
+        // Display avatar
+        document.getElementById('agent-avatar').textContent = agentInitials;
+        
+        // Display name
+        document.getElementById('agent-name').textContent = agentName;
+        
+        // Display rating
+        const ratingHTML = `
+            <div class="stars">
+                ${createStarRating(rating)}
+            </div>
+            <span class="rating-text">${rating.toFixed(1)} (${totalReviews} review${totalReviews !== 1 ? 's' : ''})</span>
+        `;
+        document.getElementById('agent-rating').innerHTML = ratingHTML;
+        
+        // Display contact
+        document.getElementById('agent-contact').innerHTML = `
+            <i class="fas fa-envelope"></i>${agent.email}
+        `;
+        
+    } catch (error) {
+        console.error('Error loading agent reviews:', error);
+        // Display basic info even if reviews fail to load
+        document.getElementById('agent-avatar').textContent = agentInitials;
+        document.getElementById('agent-name').textContent = agentName;
+        document.getElementById('agent-rating').innerHTML = `<span class="rating-text">No reviews yet</span>`;
+        document.getElementById('agent-contact').innerHTML = `<i class="fas fa-envelope"></i>${agent.email}`;
+    }
+}
+
+// Create star rating HTML
+function createStarRating(rating) {
+    let stars = '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < 5; i++) {
+        if (i < fullStars) {
+            stars += '<span class="star">★</span>';
+        } else if (i === fullStars && hasHalfStar) {
+            stars += '<span class="star half">★</span>';
+        } else {
+            stars += '<span class="star empty">☆</span>';
+        }
+    }
+    
+    return stars;
+}
+
+// View agent profile
+function viewAgentProfile() {
+    if (window.currentAgentId) {
+        window.location.href = `agent-profile.html?id=${window.currentAgentId}`;
+    }
+}
+
+// Make it globally accessible
+window.viewAgentProfile = viewAgentProfile;
 
 function changeMainImage(imageUrl, thumbnailElement) {
     const mainImageContainer = document.getElementById('main-image');

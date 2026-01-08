@@ -5,9 +5,9 @@ let agentData = null;
 let reviewsData = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Get agent ID from URL
+    // Get agent ID from URL (support both 'id' and 'agent_id' parameters)
     const urlParams = new URLSearchParams(window.location.search);
-    agentId = urlParams.get('id');
+    agentId = urlParams.get('agent_id') || urlParams.get('id');
     
     if (!agentId) {
         showError();
@@ -31,16 +31,16 @@ async function loadAgentProfile() {
         profileContent.style.display = 'none';
         
         // Fetch agent info
-        const agentResponse = await fetch(`${API_BASE_URL}/user/${agentId}`);
-        if (!agentResponse.ok) throw new Error('Agent not found');
+        const agentResponse = await apiCall(`/auth/users/${agentId}`, 'GET');
+        if (!agentResponse.success) throw new Error('Agent not found');
         
-        agentData = await agentResponse.json();
+        agentData = agentResponse.data;
         
         // Fetch reviews
-        const reviewsResponse = await fetch(`${API_BASE_URL}/reviews/agent/${agentId}`);
-        if (!reviewsResponse.ok) throw new Error('Failed to load reviews');
+        const reviewsResponse = await apiCall(`/reviews/agent/${agentId}`, 'GET');
+        if (!reviewsResponse.success) throw new Error('Failed to load reviews');
         
-        reviewsData = await reviewsResponse.json();
+        reviewsData = reviewsResponse.data;
         
         // Display profile
         displayAgentProfile();
