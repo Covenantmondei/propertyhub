@@ -11,6 +11,12 @@
     --chat-hover: #f8f9fa;
 }
 
+/* Prevent body scrolling on chat page */
+body {
+    overflow: hidden;
+    height: 100vh;
+}
+
 /* ============================================
    NAVBAR
    ============================================ */
@@ -121,19 +127,21 @@
 }
 
 .chat-main {
-    min-height: calc(100vh - 140px);
+    height: calc(100vh - 70px);
     background: var(--chat-bg);
     padding: 0;
+    overflow: hidden;
 }
 
 .chat-container {
     display: grid;
     grid-template-columns: 360px 1fr;
-    height: calc(100vh - 140px);
+    height: 100%;
     max-width: 1600px;
     margin: 0 auto;
     background: white;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
 /* ============================================
@@ -145,6 +153,8 @@
     display: flex;
     flex-direction: column;
     background: var(--chat-sidebar-bg);
+    height: 100%;
+    overflow: hidden;
 }
 
 .sidebar-header {
@@ -153,6 +163,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .sidebar-header h2 {
@@ -193,6 +204,7 @@
     align-items: center;
     gap: 0.75rem;
     background: white;
+    flex-shrink: 0;
 }
 
 .search-bar i {
@@ -370,6 +382,8 @@
     flex-direction: column;
     background: white;
     position: relative;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Welcome State */
@@ -412,6 +426,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
 }
 
 /* Chat Header */
@@ -423,6 +438,9 @@
     align-items: center;
     background: white;
     z-index: 10;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
 }
 
 .chat-header-info {
@@ -588,6 +606,7 @@
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--chat-border);
     background: white;
+    flex-shrink: 0;
 }
 
 .message-input-wrapper {
@@ -786,5 +805,24 @@
     .message-bubble {
         max-width: 90%;
         padding: 0.65rem 0.85rem;
+    }
+}
+
+.mobile-back-btn {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .mobile-back-btn {
+        display: flex !important;
+    }
+    
+    .desktop-close-btn {
+        display: none !important;
+    }
+    
+    .chat-header-info {
+        display: flex;
+        align-items: center;
     }
 }

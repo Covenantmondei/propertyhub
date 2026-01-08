@@ -42,9 +42,6 @@
             <aside class="conversations-sidebar">
                 <div class="sidebar-header">
                     <h2>Messages</h2>
-                    <button class="btn-icon" id="refresh-conversations" title="Refresh">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
                 </div>
 
                 <!-- Search Bar -->
@@ -89,6 +86,11 @@
                     <!-- Chat Header -->
                     <div class="chat-header">
                         <div class="chat-header-info">
+                            <!-- Add Back Button for Mobile -->
+                            <button class="btn-icon mobile-back-btn" id="mobile-back-btn" title="Back to conversations" style="display: none; margin-right: 0.5rem;">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            
                             <div class="user-avatar" id="chat-user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
@@ -104,7 +106,7 @@
                             <button class="btn-icon" id="view-property-btn" title="View Property">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
-                            <button class="btn-icon" id="close-chat-btn" title="Close Chat">
+                            <button class="btn-icon desktop-close-btn" id="close-chat-btn" title="Close Chat">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>

@@ -95,7 +95,7 @@ function setupEventListeners() {
     }
     
     // Refresh conversations button
-    document.getElementById('refresh-conversations').addEventListener('click', loadConversations);
+    // Refresh button removed from UI
     
     // Search conversations
     document.getElementById('conversation-search').addEventListener('input', (e) => {
@@ -140,6 +140,9 @@ function setupEventListeners() {
             }
         }
     });
+    
+    // Add mobile back button handler
+    document.getElementById('mobile-back-btn')?.addEventListener('click', closeActiveChat);
 }
 
 async function loadConversations() {
@@ -148,7 +151,7 @@ async function loadConversations() {
     const listEl = document.getElementById('conversations-list');
     
     try {
-        loadingEl.style.display = 'flex';
+        // Don't show loading on refresh, only on initial load
         
         conversations = await apiCall('/chat/conversations');
         
@@ -316,14 +319,16 @@ function viewChatUserProfile() {
 // Show buyer profile information in a modal
 async function showBuyerProfileModal(buyerId) {
     try {
-        const response = await apiCall(`/auth/users/${buyerId}`, 'GET');
+        const buyer = await apiCall(`/auth/users/${buyerId}`);
         
-        if (!response.success) {
+        if (!buyer || !buyer.first_name) {
             showNotification('Failed to load buyer profile', 'error');
             return;
         }
         
-        const buyer = response.data;
+        // Construct full name from first_name and last_name
+        const fullName = `${buyer.first_name || ''} ${buyer.last_name || ''}`.trim();
+        const initials = `${buyer.first_name?.[0] || ''}${buyer.last_name?.[0] || ''}`.toUpperCase();
         
         // Create modal
         const modal = document.createElement('div');
@@ -359,9 +364,9 @@ async function showBuyerProfileModal(buyerId) {
             
             <div style="text-align: center; margin-bottom: 25px;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; margin-bottom: 15px;">
-                    ${buyer.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    ${initials}
                 </div>
-                <h2 style="margin: 0 0 5px 0; color: #2d3748;">${buyer.full_name}</h2>
+                <h2 style="margin: 0 0 5px 0; color: #2d3748;">${fullName}</h2>
                 <p style="color: #718096; margin: 0;">Buyer</p>
             </div>
             
