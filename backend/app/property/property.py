@@ -11,6 +11,8 @@ from app.auth.models import User
 from app.property.models import Favorite, PropertyImage, UserProperty
 from app.property.schemas import PropertyCreate
 from app.notifications import notify_admin_new_property, get_admin_emails
+from app.chat.models import Conversation
+
 
 
 cloudinary.config(
@@ -276,6 +278,10 @@ def delete_property(db: Session, property_id: int, agent_id: int):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete your own properties"
         )
+    
+    conversations = db.query(Conversation).filter(Conversation.property_id == property_id).all()
+    for conversation in conversations:
+        db.delete(conversation)
     
     # Delete images from Cloudinary
     for image in property.images:
