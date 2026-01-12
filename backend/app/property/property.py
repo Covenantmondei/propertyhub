@@ -289,7 +289,7 @@ def delete_property(db: Session, property_id: int, agent_id: int):
             try:
                 cloudinary.uploader.destroy(image.public_id)
             except:
-                pass  # Continue even if Cloudinary deletion fails
+                pass
     
     db.delete(property)
     db.commit()
