@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://127.0.0.1:8000ckend-seven.vercel.app';
+const BACKEND_URL = 'https://myproperty-backend-three.vercel.appckend-seven.vercel.app';
 let activeStep = 'login';
 
 document.addEventListener('DOMContentLoaded', () => {
