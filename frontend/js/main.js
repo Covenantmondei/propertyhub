@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://myproperty-backend-three.vercel.app';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 window.API_BASE_URL = API_BASE_URL;
 
 // Initialize theme and footer on page load
@@ -53,12 +53,44 @@ function initializeMobileMenu() {
     const closeIcon = document.querySelector('.close-icon');
     
     if (menuToggle && mobileMenu) {
-        menuToggle.addEventListener('click', () => {
+        // Set initial ARIA attributes
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-controls', 'mobile-menu');
+        
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             const isActive = mobileMenu.classList.toggle('active');
             
+            // Update ARIA attribute
+            menuToggle.setAttribute('aria-expanded', isActive.toString());
+            
+            // Toggle icons
             if (menuIcon && closeIcon) {
                 menuIcon.classList.toggle('hidden', isActive);
                 closeIcon.classList.toggle('hidden', !isActive);
+            }
+            
+            // Prevent body scroll when menu is open
+            if (isActive) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+                
+                if (menuIcon && closeIcon) {
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
             }
         });
         
@@ -67,11 +99,29 @@ function initializeMobileMenu() {
         mobileLinks.forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+                
                 if (menuIcon && closeIcon) {
                     menuIcon.classList.remove('hidden');
                     closeIcon.classList.add('hidden');
                 }
             });
+        });
+        
+        // Close menu with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+                menuToggle.focus(); // Return focus to toggle button
+                
+                if (menuIcon && closeIcon) {
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            }
         });
     }
 }
