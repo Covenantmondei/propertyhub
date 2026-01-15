@@ -4,6 +4,9 @@ let currentConversationId = null;
 let conversations = [];
 let websocket = null;
 let currentUser = null;
+let messageQueue = new Map(); // Track pending messages
+let tempMessageId = 0; // Temporary ID counter for optimistic messages
+let lastRenderedMessageCount = 0; // Track rendered messages for efficient updates
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Chat page loaded');
@@ -204,20 +207,52 @@ function createConversationItem(conv) {
     const initials = conv.other_user_name.split(' ').map(n => n[0]).join('').toUpperCase();
     const timeAgo = formatTimeAgo(conv.last_message_at);
     
-    div.innerHTML = `
-        <div class="conversation-avatar">${initials}</div>
-        <div class="conversation-details">
-            <div class="conversation-header">
-                <span class="conversation-name">${conv.other_user_name}</span>
-                <span class="conversation-time">${timeAgo}</span>
-            </div>
-            <div class="conversation-property">${conv.property_title}</div>
-            <div class="conversation-preview">${conv.last_message_preview || 'No messages yet'}</div>
-        </div>
-        ${conv.unread_count > 0 ? `<span class="unread-badge">${conv.unread_count}</span>` : ''}
-    `;
+    // Optimized DOM creation (faster than innerHTML)
+    const avatar = document.createElement('div');
+    avatar.className = 'conversation-avatar';
+    avatar.textContent = initials;
     
-    div.addEventListener('click', () => loadConversation(conv.id));
+    const details = document.createElement('div');
+    details.className = 'conversation-details';
+    
+    const header = document.createElement('div');
+    header.className = 'conversation-header';
+    
+    const name = document.createElement('span');
+    name.className = 'conversation-name';
+    name.textContent = conv.other_user_name;
+    
+    const time = document.createElement('span');
+    time.className = 'conversation-time';
+    time.textContent = timeAgo;
+    
+    header.appendChild(name);
+    header.appendChild(time);
+    
+    const property = document.createElement('div');
+    property.className = 'conversation-property';
+    property.textContent = conv.property_title;
+    
+    const preview = document.createElement('div');
+    preview.className = 'conversation-preview';
+    preview.textContent = conv.last_message_preview || 'No messages yet';
+    
+    details.appendChild(header);
+    details.appendChild(property);
+    details.appendChild(preview);
+    
+    div.appendChild(avatar);
+    div.appendChild(details);
+    
+    if (conv.unread_count > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'unread-badge';
+        badge.textContent = conv.unread_count;
+        div.appendChild(badge);
+    }
+    
+    // Use event delegation for better performance
+    div.addEventListener('click', () => loadConversation(conv.id), { passive: true });
     
     return div;
 }
@@ -412,32 +447,49 @@ async function showBuyerProfileModal(buyerId) {
     }
 }
 
-function renderMessages(messages) {
+function renderMessages(messages, append = false) {
     const container = document.getElementById('messages-container');
     
-    // Clear existing messages (except loading indicator)
-    Array.from(container.children).forEach(child => {
-        if (child.id !== 'messages-loading') {
-            child.remove();
-        }
-    });
+    if (!append) {
+        // Clear existing messages (except loading indicator)
+        Array.from(container.children).forEach(child => {
+            if (child.id !== 'messages-loading') {
+                child.remove();
+            }
+        });
+        lastRenderedMessageCount = 0;
+    }
     
+    // Use DocumentFragment for batch DOM updates (non-blocking)
+    const fragment = document.createDocumentFragment();
     let lastDate = null;
+    
+    // Get the last date if appending
+    if (append && container.lastElementChild && container.lastElementChild.dataset.date) {
+        lastDate = new Date(container.lastElementChild.dataset.date).toDateString();
+    }
     
     messages.forEach(msg => {
         const msgDate = new Date(msg.created_at).toDateString();
         
         // Add date divider if date changed
         if (msgDate !== lastDate) {
-            container.appendChild(createDateDivider(msg.created_at));
+            fragment.appendChild(createDateDivider(msg.created_at));
             lastDate = msgDate;
         }
         
-        container.appendChild(createMessageElement(msg));
+        const msgElement = createMessageElement(msg);
+        msgElement.dataset.date = msg.created_at;
+        msgElement.dataset.messageId = msg.id || msg.temp_id;
+        fragment.appendChild(msgElement);
     });
     
-    // Scroll to bottom
-    scrollToBottom();
+    // Single DOM update - batch append
+    container.appendChild(fragment);
+    lastRenderedMessageCount = messages.length;
+    
+    // Scroll to bottom (non-blocking)
+    requestAnimationFrame(() => scrollToBottom());
 }
 
 function createDateDivider(date) {
@@ -472,20 +524,55 @@ function createMessageElement(msg) {
     const isSent = msg.sender_id === currentUser.user_id;
     div.className = `message ${isSent ? 'sent' : 'received'}`;
     
+    // Add state classes for visual feedback
+    if (msg.state) {
+        div.classList.add(`message-${msg.state}`);
+    }
+    
     const time = new Date(msg.created_at).toLocaleTimeString('en-US', { 
         hour: 'numeric', 
         minute: '2-digit',
         hour12: true 
     });
     
-    div.innerHTML = `
-        <div class="message-bubble">
-            <div class="message-content">${escapeHtml(msg.content)}</div>
-            <span class="message-time">${time}</span>
-        </div>
-    `;
+    // Create message bubble with optimized DOM creation (not innerHTML)
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = msg.content; // Faster than innerHTML, auto-escapes
+    
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'message-time';
+    timeSpan.textContent = time;
+    
+    // Add status indicator for sent messages
+    if (isSent) {
+        const statusIcon = document.createElement('span');
+        statusIcon.className = 'message-status';
+        statusIcon.innerHTML = getStatusIcon(msg.state);
+        timeSpan.appendChild(statusIcon);
+    }
+    
+    bubble.appendChild(content);
+    bubble.appendChild(timeSpan);
+    div.appendChild(bubble);
     
     return div;
+}
+
+function getStatusIcon(state) {
+    switch(state) {
+        case 'sending':
+            return '<svg class="status-icon sending" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5"/></svg>';
+        case 'sent':
+            return '<svg class="status-icon sent" width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>';
+        case 'failed':
+            return '<svg class="status-icon failed" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="#ef4444"/><path d="M4 4l4 4M8 4l-4 4" stroke="white" stroke-width="1.5"/></svg>';
+        default:
+            return '<svg class="status-icon sent" width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>';
+    }
 }
 
 async function sendMessage() {
@@ -497,54 +584,144 @@ async function sendMessage() {
     if (!content) return;
     
     const sendBtn = document.getElementById('send-message-btn');
-    sendBtn.disabled = true;
-    input.disabled = true;
     
+    // Generate temporary message ID
+    const tempId = `temp_${++tempMessageId}_${Date.now()}`;
+    const now = new Date().toISOString();
+    
+    // Create optimistic message object
+    const optimisticMessage = {
+        id: null,
+        temp_id: tempId,
+        content: content,
+        sender_id: currentUser.user_id,
+        conversation_id: currentConversationId,
+        created_at: now,
+        state: 'sending'
+    };
+    
+    // ✅ INSTANT UI UPDATE - Display message immediately
+    addMessageToUI(optimisticMessage);
+    
+    // Clear input immediately for instant feedback
+    input.value = '';
+    input.style.height = 'auto';
+    sendBtn.disabled = false;
+    input.focus();
+    
+    // Update conversation preview immediately
+    updateConversationPreview(currentConversationId, content);
+    
+    // Store in queue for tracking
+    messageQueue.set(tempId, { message: optimisticMessage, retries: 0 });
+    
+    // 🚀 Non-blocking network request in background
+    sendMessageToBackend(tempId, content, currentConversationId);
+}
+
+// Separate function for background network request
+async function sendMessageToBackend(tempId, content, conversationId) {
     try {
-        const message = await apiCall(`/chat/conversations/${currentConversationId}/messages`, {
+        const message = await apiCall(`/chat/conversations/${conversationId}/messages`, {
             method: 'POST',
             body: JSON.stringify({ content })
         });
         
-        // Add message to UI
-        const container = document.getElementById('messages-container');
+        // Update message state to 'sent'
+        updateMessageState(tempId, 'sent', message.id);
         
-        // Check if we need a date divider
-        const lastMessage = container.querySelector('.message:last-of-type');
-        if (lastMessage) {
-            const lastDate = new Date(lastMessage.dataset.date || Date.now()).toDateString();
-            const currentDate = new Date().toDateString();
-            if (lastDate !== currentDate) {
-                container.appendChild(createDateDivider(new Date()));
-            }
-        } else {
-            container.appendChild(createDateDivider(new Date()));
-        }
-        
-        const msgElement = createMessageElement({
-            ...message,
-            sender_id: currentUser.user_id
-        });
-        msgElement.dataset.date = new Date().toISOString();
-        container.appendChild(msgElement);
-        
-        // Clear input
-        input.value = '';
-        input.style.height = 'auto';
-        
-        // Update conversation preview in sidebar
-        updateConversationPreview(currentConversationId, content);
-        
-        // Scroll to bottom
-        scrollToBottom();
+        // Remove from queue
+        messageQueue.delete(tempId);
         
     } catch (error) {
         console.error('Failed to send message:', error);
-        showNotification('Failed to send message', 'error');
-    } finally {
-        sendBtn.disabled = false;
-        input.disabled = false;
-        input.focus();
+        
+        const queueItem = messageQueue.get(tempId);
+        if (queueItem && queueItem.retries < 3) {
+            // Retry logic
+            queueItem.retries++;
+            console.log(`Retrying message ${tempId}, attempt ${queueItem.retries}`);
+            setTimeout(() => sendMessageToBackend(tempId, content, conversationId), 2000 * queueItem.retries);
+        } else {
+            // Mark as failed after 3 retries
+            updateMessageState(tempId, 'failed');
+            messageQueue.delete(tempId);
+            
+            // Show retry option
+            showMessageRetryOption(tempId, content, conversationId);
+        }
+    }
+}
+
+// Add message to UI efficiently (non-blocking)
+function addMessageToUI(message) {
+    const container = document.getElementById('messages-container');
+    
+    // Check if we need a date divider
+    const lastMessage = container.querySelector('.message:last-of-type');
+    if (lastMessage) {
+        const lastDate = new Date(lastMessage.dataset.date || Date.now()).toDateString();
+        const currentDate = new Date(message.created_at).toDateString();
+        if (lastDate !== currentDate) {
+            container.appendChild(createDateDivider(message.created_at));
+        }
+    } else {
+        container.appendChild(createDateDivider(message.created_at));
+    }
+    
+    const msgElement = createMessageElement(message);
+    msgElement.dataset.date = message.created_at;
+    msgElement.dataset.messageId = message.temp_id || message.id;
+    
+    // Use requestAnimationFrame for smooth rendering
+    requestAnimationFrame(() => {
+        container.appendChild(msgElement);
+        scrollToBottom();
+    });
+}
+
+// Update message state (sending → sent/failed)
+function updateMessageState(tempId, newState, realId = null) {
+    const container = document.getElementById('messages-container');
+    const msgElement = container.querySelector(`[data-message-id="${tempId}"]`);
+    
+    if (msgElement) {
+        // Update state class
+        msgElement.classList.remove('message-sending', 'message-sent', 'message-failed');
+        msgElement.classList.add(`message-${newState}`);
+        
+        // Update status icon
+        const statusIcon = msgElement.querySelector('.message-status');
+        if (statusIcon) {
+            statusIcon.innerHTML = getStatusIcon(newState);
+        }
+        
+        // Update data attribute if we have real ID
+        if (realId) {
+            msgElement.dataset.messageId = realId;
+            msgElement.dataset.realId = realId;
+        }
+    }
+}
+
+// Show retry option for failed messages
+function showMessageRetryOption(tempId, content, conversationId) {
+    const msgElement = document.querySelector(`[data-message-id="${tempId}"]`);
+    if (msgElement) {
+        const bubble = msgElement.querySelector('.message-bubble');
+        
+        // Add retry button
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'message-retry-btn';
+        retryBtn.innerHTML = '↻ Retry';
+        retryBtn.onclick = () => {
+            retryBtn.remove();
+            updateMessageState(tempId, 'sending');
+            messageQueue.set(tempId, { message: { content, temp_id: tempId }, retries: 0 });
+            sendMessageToBackend(tempId, content, conversationId);
+        };
+        
+        bubble.appendChild(retryBtn);
     }
 }
 
@@ -600,11 +777,24 @@ function closeActiveChat() {
     });
 }
 
-function scrollToBottom() {
+// Debounced scroll to avoid multiple reflows
+let scrollTimeout = null;
+function scrollToBottom(immediate = false) {
     const container = document.getElementById('messages-container');
-    setTimeout(() => {
+    
+    if (immediate) {
         container.scrollTop = container.scrollHeight;
-    }, 100);
+        return;
+    }
+    
+    if (scrollTimeout) {
+        cancelAnimationFrame(scrollTimeout);
+    }
+    
+    scrollTimeout = requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+        scrollTimeout = null;
+    });
 }
 
 // WebSocket Connection
@@ -671,24 +861,40 @@ function handleNewMessage(messageData) {
     if (currentConversationId === messageData.conversation_id) {
         const container = document.getElementById('messages-container');
         
-        // Check if we need a date divider
-        const lastMessage = container.querySelector('.message:last-of-type');
-        if (lastMessage) {
-            const lastDate = new Date(lastMessage.dataset.date || Date.now()).toDateString();
-            const currentDate = new Date().toDateString();
-            if (lastDate !== currentDate) {
-                container.appendChild(createDateDivider(new Date()));
+        // Check for duplicate message (prevent double rendering)
+        const existingMsg = container.querySelector(`[data-message-id="${messageData.id}"]`);
+        if (existingMsg) {
+            console.log('Duplicate message ignored:', messageData.id);
+            return;
+        }
+        
+        // Check if this is our own message (already shown optimistically)
+        if (messageData.sender_id === currentUser.user_id) {
+            // Find and update the temp message if it exists
+            const tempMsg = Array.from(container.querySelectorAll('.message-sending'))
+                .find(el => {
+                    const content = el.querySelector('.message-content');
+                    return content && content.textContent === messageData.content;
+                });
+            
+            if (tempMsg) {
+                const tempId = tempMsg.dataset.messageId;
+                updateMessageState(tempId, 'sent', messageData.id);
+                return; // Don't add duplicate
             }
         }
         
-        const msgElement = createMessageElement({
+        // Add new message from other user
+        const msgData = {
             ...messageData,
-            created_at: messageData.created_at
-        });
-        msgElement.dataset.date = messageData.created_at;
-        container.appendChild(msgElement);
+            created_at: messageData.created_at,
+            state: 'sent'
+        };
         
-        scrollToBottom();
+        // Use requestAnimationFrame for smooth, non-blocking render
+        requestAnimationFrame(() => {
+            addMessageToUI(msgData);
+        });
     } else {
         // Update unread count in sidebar
         const convItem = document.querySelector(`[data-conversation-id="${messageData.conversation_id}"]`);
