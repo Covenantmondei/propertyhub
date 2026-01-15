@@ -572,17 +572,142 @@ body {
 .message-time {
     font-size: 0.75rem;
     opacity: 0.7;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     margin-top: 0.25rem;
 }
 
 .message.sent .message-time {
     text-align: right;
+    justify-content: flex-end;
 }
 
 .message.received .message-time {
     text-align: left;
     color: hsl(var(--muted-foreground));
+}
+
+/* Message Status Icons */
+.message-status {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.25rem;
+}
+
+.status-icon {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+}
+
+.status-icon.sending {
+    animation: rotate 1s linear infinite;
+    opacity: 0.6;
+}
+
+.status-icon.sent {
+    color: #10b981;
+}
+
+.status-icon.failed {
+    cursor: pointer;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Message States */
+.message-sending {
+    opacity: 0.7;
+}
+
+.message-sending .message-bubble {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.message-sent .message-bubble {
+    animation: messageSuccess 0.3s ease-out;
+}
+
+.message-failed .message-bubble {
+    border: 1px solid #ef4444;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes messageSuccess {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Retry Button */
+.message-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    margin-top: 0.5rem;
+    background: white;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.message-retry-btn:hover {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Optimize image loading */
+.conversation-avatar,
+.chat-user-avatar img,
+.testimonial-img {
+    content-visibility: auto;
+}
+
+/* Lazy loading skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* Date Divider */
